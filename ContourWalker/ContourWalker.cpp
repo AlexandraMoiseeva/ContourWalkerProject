@@ -6,147 +6,8 @@
 #include <list>
 #include <iterator>
 #include <SFML/Graphics.hpp>
+#include "ContourWalker.h"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 
-static enum DetailEnum { symAxis, wp, tool };
-static enum ReaderBikesEnum { object, nodeTool, nodeWP, edge, bound, contacts };
-static enum ReaderSettingEnum { skip, readNodes, readEdge, readContacts };
-static enum lineDirectionn { vertical, other };
-
-static std::map<std::string, unsigned> readerBikes
-{
-    {"node_id;x;z;T;volume", nodeTool},
-    {"node_id;x;z;v_x;v_z;force_x;force_z;T;stress_mean;strain_plast;stress_eff;stress_flow;strain_rate;contact_dist;volume", nodeWP},
-    {"#edge;0", edge},
-    {"#bound;0", bound},
-    {"#contacts", contacts}
-};
-
-static std::map<std::string, unsigned> detailType
-{
-    {"SymAxis", symAxis},
-    {"Tool", tool},
-    {"Workpiece", wp}
-};
-
-class Node
-{
-public:
-    int placeInContour = -1;
-    int id = NULL;
-    float x = NULL;
-    float z = NULL;
-
-    Node() {};
-
-    Node(int idValue, float xValue, float zValue) 
-    {
-        id = idValue;
-        x = xValue;
-        z = zValue;
-    };
-
-};
-
-class Segment
-{
-public :
-    Node *n1;
-    Node *n2;
-
-    float A, B, C;
-
-    Segment(Node& n1Value, Node& n2Value)
-    {
-        n1 = new Node{ n1Value };
-        n2 = new Node{ n2Value };
-
-        A = (n2->z - n1->z);
-        B = (n1->x - n2->x);
-        C = (n1->z * n2->x - n2->z * n1->x);
-    };
-
-    float inArea(Node *n)
-    {
-        return -B * (n->z - n1->z) - A * (n->x - n1->x);
-    }
-
-    bool boudingBox(Segment s1)
-    {
-        if (std::min(n1->x, n2->x) > std::max(s1.n1->x, s1.n2->x))
-            return false;
-        if (std::max(n1->x, n2->x) < std::min(s1.n1->x, s1.n2->x))
-            return false;
-        if (std::min(n1->z, n2->z) > std::max(s1.n1->z, s1.n2->z))
-            return false;
-        if (std::max(n1->z, n2->z) < std::min(s1.n1->z, s1.n2->z))
-            return false;
-        return true;
-    };
-
-    bool isSegmentCross(Segment s1)
-    {
-        return boudingBox(s1) && (inArea(s1.n1) * inArea(s1.n2) <= 0)
-            && (s1.inArea(n1) * s1.inArea(n2) <= 0);
-    };
-
-    Node SegmentCross (Segment s1)
-    {
-        float det = A * s1.B - s1.A * B;
-        if (det == 0)
-            return *n1;
-        return Node(-1, -(C * s1.B - s1.C * B) / det, -(A * s1.C - s1.A * C) / det);
-    };
-
-    void swap()
-    {
-        auto temp = n1;
-        n1 = n2;
-        n2 = temp;
-    };
-};
-
-std::pair<float, float> drawScale(Node node, float scale = 5)
-{
-    return std::make_pair(node.x * 1920 * scale + 50, (0.4 - node.z) * 1080 * scale);
-};
-
-struct LineSymStruct
-{
-    unsigned linetype = other;
-
-    float a = NULL;
-    float b = NULL;
-
-    LineSymStruct() {};
-
-
-    LineSymStruct(float xzSum, float xSum, float zSum, float x2Sum, float n)
-    {
-        if (n * x2Sum == xSum * xSum)
-        {
-            a = xSum / n;
-            linetype = vertical;
-        }
-        else
-        {
-            a = (n * xzSum - xSum * zSum) / (n * x2Sum - xSum * xSum);
-            b = (zSum - a * xSum) / n;
-        }
-    };
-
-
-    Node getSymNode(Node n)
-    {
-        if (linetype == vertical)
-            return Node(-1, -n.x, n.z);
-        if (a == 0)
-            return Node(-1, n.x, 2 * b - n.z);
-        float x0 = (n.z + (1.0f / a) * n.x - b) / (a + (1.0f / a));
-        float z0 = a * x0 + b;
-        return (Node(-1, 2 * x0 - n.x, 2 * z0 - n.z));
-    }
-
-};
 
 class Reader
 {
@@ -161,8 +22,8 @@ public:
     std::map<int, std::pair<int, int> > connect = {};
     std::map<int, std::pair<int, int> > connect1 = {};
 
-    std::vector<std::pair<std::list<int>, Segment>> connectSpace = {};
-    std::vector<std::pair<std::list<int>, Segment>> connectSpace1 = {};
+    std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpace = {};
+    std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpace1 = {};
 
 
     Reader(std::string filePathValue, int detailTypeValue = tool)
@@ -291,7 +152,7 @@ public:
 
     void draw(sf::RenderWindow &window)
     {
-        for (auto it = contour.cbegin(); it != contour.end(); ++it)
+        for (auto it = contour.cbegin(); it != contour.cend(); ++it)
         {
             Node nodepoint1, nodepoint2;
 
@@ -400,7 +261,7 @@ public:
         bool startRot = true;
         auto connectWish = detailTypeValue == tool + 1 ? connect1 : connect;
 
-        std::vector<std::pair<std::list<int>, Segment>> connectSpaceWish;
+        std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpaceWish;
 
         for (auto it = contour.begin(); it != contour.end(); ++it)
         {
@@ -414,12 +275,18 @@ public:
                 {
                     if (connectWish[(*std::next(it, -1))->id].first != -1)
                         connectSpaceWish.push_back(std::make_pair( std::list<int>{(*std::next(it, -1))->id},
-                            Segment(*otherDetail.contour[otherDetail.nodes[connectWish[(*std::next(it, -1))->id].second].placeInContour],
-                                    *otherDetail.contour[otherDetail.nodes[connectWish[(*std::next(it, -1))->id].second].placeInContour] )));
+                            std::make_pair(
+                                Segment(*otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].first].placeInContour],
+                                        *otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].second].placeInContour]),
+                                Segment(*otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].first].placeInContour],
+                                        *otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].second].placeInContour]) )));
                     else
                         connectSpaceWish.push_back(std::make_pair(std::list<int>{(*std::next(it, -1))->id},
-                            Segment(*otherDetail.contour[otherDetail.nodes[4].placeInContour],
-                                *otherDetail.contour[otherDetail.nodes[4].placeInContour]) ));
+                            std::make_pair(
+                                Segment(*otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour],
+                                        *otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour]),
+                                Segment(*otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour],
+                                        *otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour]) )));
                     StartSpaceContour = true;
                 }
                 else
@@ -434,13 +301,15 @@ public:
                     connectSpaceWish[connectSpaceWish.size() - 1].first.push_back((*std::next(it, -1))->id);
                     connectSpaceWish[connectSpaceWish.size() - 1].first.push_back((*it)->id);
                     if (std::find(symAxisPoints.begin(), symAxisPoints.end(), (*it)->id) == symAxisPoints.end())
-                        connectSpaceWish[connectSpaceWish.size() - 1].second.n1 = otherDetail.contour[otherDetail.nodes[connectWish[(*it)->id].second].placeInContour];
+                        connectSpaceWish[connectSpaceWish.size() - 1].second.first = Segment(*otherDetail.contour[otherDetail.nodes[connectWish[(*it)->id].first].placeInContour],
+                                                                                             *otherDetail.contour[otherDetail.nodes[connectWish[(*it)->id].second].placeInContour]);
                     else
-                        connectSpaceWish[connectSpaceWish.size() - 1].second.n2 = otherDetail.contour[otherDetail.nodes[4].placeInContour];
+                        connectSpaceWish[connectSpaceWish.size() - 1].second.first = Segment(*otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour],
+                                                                                             *otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour]);
                 }
             }
         }
-        
+
         if (detailTypeValue != tool)
             connectSpaceWish.pop_back();
         else
@@ -453,48 +322,10 @@ public:
     }
 
 
-    bool intersectionPart(Segment pointOfConnect, std::pair<int, int> connectPointOtherDetai)
-    {
-        int segment1Begin = pointOfConnect.n1->placeInContour;
-        int segment1End = pointOfConnect.n2->placeInContour;
-        if ((segment1End - segment1Begin) < 0)
-        {
-            std::swap(segment1End, segment1Begin);
-        }
-        int segment2Begin = connectPointOtherDetai.first;
-        int segment2End = connectPointOtherDetai.second;
-
-        if (segment1Begin > segment2End or segment1End < segment2Begin)
-            return false;
-        return true;
-
-    };
-
-
     void intersection(Reader& otherDetail, sf::RenderWindow& window, unsigned detailTypeValue)
     {
-        std::vector<std::pair<std::list<int>, int>> pointOfConnection = {};
-        std::vector<std::pair<std::list<int>, Segment>> connectSpaceWish = detailTypeValue == tool + 1 ? connectSpace1 : connectSpace;
+        std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpaceWish = detailTypeValue == tool + 1 ? connectSpace1 : connectSpace;
 
-        pointOfConnection.reserve(connectSpaceWish.size());
-
-        for (int n = 0; n < connectSpaceWish.size(); ++n)
-            pointOfConnection.push_back(std::make_pair(std::list<int>{}, 0));
-
-        for (int i = 0; i < connectSpaceWish.size(); ++i)
-        { 
-            auto elem = connectSpaceWish[i];
-            for (int j = 0; j < otherDetail.connectSpace.size(); ++j)
-            {
-                auto elem1 = otherDetail.connectSpace[j];
-
-                if (intersectionPart(elem.second, std::make_pair(otherDetail.nodes[*elem1.first.begin()].placeInContour, otherDetail.nodes[*std::prev(elem1.first.end())].placeInContour )))
-                {
-                    pointOfConnection[i].first.push_back(j);
-                    pointOfConnection[i].second += elem1.first.size();
-                }
-            }
-        }
         sf::Text text;
         sf::Font font;
         if (!font.loadFromFile("ArialRegular.ttf"))
@@ -508,101 +339,93 @@ public:
         for (int i = 0; i < connectSpaceWish.size(); ++i)
         {
             float sumSquare = 0.0f;
-            sf::Vector2f vectorpoint1, vectorpoint2;
+            Node point1, point2;
 
-            auto vectorpoin1result = drawScale(nodes[*connectSpaceWish[i].first.begin()]);
-            vectorpoint1 = sf::Vector2f(vectorpoin1result.first, vectorpoin1result.second);
+            point1 = nodes[*connectSpaceWish[i].first.begin()];
 
             for (auto elem : connectSpaceWish[i].first)
             {
-                auto vectorpoin2result = drawScale(nodes[elem]);
+                point2 = nodes[elem];
 
-                vectorpoint2 = sf::Vector2f(vectorpoin2result.first, vectorpoin2result.second);
+                sumSquare += drawAndSum(point1, point2, window);
 
-                sf::Vertex line[] =
-                {
-                    sf::Vertex(vectorpoint1),
-                    sf::Vertex(vectorpoint2)
-                };
-
-                sumSquare += 0.5 * (vectorpoint1.x * vectorpoint2.y - vectorpoint2.x * vectorpoint1.y);
-
-                window.draw(line, 2, sf::Lines);
-
-                vectorpoint1 = vectorpoint2;
+                point1 = point2;
             }
 
-            if (pointOfConnection[i].second > 0)
-                for (int idelem : pointOfConnection[i].first)
+            point2 = connectSpaceWish[i].second.first.proection(nodes[*std::prev(connectSpaceWish[i].first.end())]);
+
+            sumSquare += drawAndSum(point1, point2, window);
+
+            point1 = point2;
+
+            if (connectSpaceWish[i].second.first.n1->id != connectSpaceWish[i].second.first.n2->id and
+                connectSpaceWish[i].second.second.n1->id != connectSpaceWish[i].second.second.n2->id)
+                for (auto elem1 = std::next(&otherDetail.contour[connectSpaceWish[i].second.first.n1->placeInContour]);
+                    elem1 != &otherDetail.contour[connectSpaceWish[i].second.second.n2->placeInContour]; ++elem1)
                 {
-                    for (auto elem1 = otherDetail.contour[otherDetail.nodes[*otherDetail.connectSpace[idelem].first.begin()].placeInContour];
-                        elem1 != std::next(otherDetail.contour[otherDetail.nodes[*std::prev(otherDetail.connectSpace[idelem].first.end())].placeInContour]); ++elem1)
-                    {
-                        if (connectSpaceWish[i].second.n2->placeInContour - elem1->placeInContour < 0)
-                            continue;
+                    point2 = **elem1;
 
-                        if (elem1->placeInContour - connectSpaceWish[i].second.n1->placeInContour < 0)
-                            continue;
+                    sumSquare += drawAndSum(point1, point2, window);
 
-                        auto vectorpoin2result = drawScale(*elem1);
-                        vectorpoint2 = sf::Vector2f(vectorpoin2result.first, vectorpoin2result.second);
-
-                        sf::Vertex line[] =
-                        {
-                            sf::Vertex(vectorpoint1),
-                            sf::Vertex(vectorpoint2)
-                        };
-
-                        sumSquare += 0.5 * (vectorpoint1.x * vectorpoint2.y - vectorpoint2.x * vectorpoint1.y);
-
-                        window.draw(line, 2, sf::Lines);
-
-                        vectorpoint1 = vectorpoint2;
-                    }
+                    point1 = point2;
                 }
             else
-            {
-
-                if (connectSpaceWish[i].second.n2->placeInContour > connectSpaceWish[i].second.n1->placeInContour)
-                    connectSpaceWish[i].second.swap();
-
-                for (auto elem1 = &otherDetail.contour[connectSpaceWish[i].second.n2->placeInContour]; elem1 != std::next(&otherDetail.contour[connectSpaceWish[i].second.n1->placeInContour]); ++elem1)
-                {
-
-                    std::cout << (*elem1)->id << std::endl;
-
-                    auto vectorpoin2result = drawScale((**elem1));
-                    vectorpoint2 = sf::Vector2f(vectorpoin2result.first, vectorpoin2result.second);
-
-                    sf::Vertex line[] =
+                if (connectSpaceWish[i].second.first.n1->id != connectSpaceWish[i].second.first.n2->id)
+                    for (auto elem1 = std::next(&otherDetail.contour[connectSpaceWish[i].second.first.n1->placeInContour]);
+                        std::find(otherDetail.symAxisPoints.begin(), otherDetail.symAxisPoints.end(), (*std::prev(elem1))->id) == otherDetail.symAxisPoints.end(); ++elem1)
                     {
-                        sf::Vertex(vectorpoint1),
-                        sf::Vertex(vectorpoint2)
-                    };
+                        point2 = **elem1;
 
-                    sumSquare += 0.5 * (vectorpoint1.x * vectorpoint2.y - vectorpoint2.x * vectorpoint1.y);
+                        sumSquare += drawAndSum(point1, point2, window);
 
-                    window.draw(line, 2, sf::Lines);
+                        point1 = point2;
+                    }
 
-                    vectorpoint1 = vectorpoint2;
-                }
-            }
-            vectorpoint2 = sf::Vector2f(vectorpoin1result.first, vectorpoin1result.second);
+            point2 = connectSpaceWish[i].second.second.proection(point1);
 
-            sf::Vertex line[] =
-            {
-                sf::Vertex(vectorpoint1),
-                sf::Vertex(vectorpoint2)
-            };
+            sumSquare += drawAndSum(point1, point2, window);
 
-            sumSquare += 0.5 * (vectorpoint1.x * vectorpoint2.y - vectorpoint2.x * vectorpoint1.y);
+            point1 = point2;
 
-            window.draw(line, 2, sf::Lines);
+            point2 = nodes[*connectSpaceWish[i].first.begin()];
+
+            sumSquare += drawAndSum(point1, point2, window);
 
             text.setString(std::to_string(abs(sumSquare)));
-            text.setPosition(vectorpoin1result.first + 50, vectorpoin1result.second + 50);
+            auto textPoint = drawScale(point2);
+            text.setPosition(textPoint.first + 50, textPoint.second + 50);
             window.draw(text);
         }
+    }
+
+
+private:
+
+    std::pair<float, float> drawScale(Node node, float scale = 5)
+    {
+        return std::make_pair(node.x * 1920 * scale + 50, (0.4 - node.z) * 1080 * scale);
+    };
+
+
+    float drawAndSum(Node n1, Node n2, sf::RenderWindow& window)
+    {
+        auto vectorpoint1result = drawScale(n1);
+        auto vectorpoint2result = drawScale(n2);
+
+        auto vectorpoint1 = sf::Vector2f(vectorpoint1result.first, vectorpoint1result.second);
+        auto vectorpoint2 = sf::Vector2f(vectorpoint2result.first, vectorpoint2result.second);
+
+        sf::Vertex line[] =
+        {
+            sf::Vertex(vectorpoint1),
+            sf::Vertex(vectorpoint2)
+        };
+
+        float sumSquare = 0.5 * (n1.x * n2.z - n2.x * n1.z);
+
+        window.draw(line, 2, sf::Lines);
+
+        return sumSquare;
     }
 };
 int main()
@@ -667,8 +490,9 @@ int main()
         fistFigure.intersectionSpace(window, wpFigure, wp);
         secondFigure.intersectionSpace(window, wpFigure, wp);
         wpFigure.intersectionSpace(window, fistFigure, tool);
+        
         wpFigure.intersectionSpace(window, secondFigure, tool + 1);
-
+        
         wpFigure.intersection(fistFigure, window, tool);
         wpFigure.intersection(secondFigure, window, tool + 1);
 
