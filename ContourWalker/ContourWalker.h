@@ -35,6 +35,7 @@ static std::map<std::string, unsigned> detailType
     {"Workpiece", wp}
 };
 
+static std::vector<std::string> detailTypeToString = { "symAxis", "Tool1", "Tool2", "Workpiece" };
 /*
 * Класс для определения узла
 * Хранит:
@@ -45,22 +46,23 @@ static std::map<std::string, unsigned> detailType
 class Node
 {
 public:
+    unsigned toolType = symAxis;
     int placeInContour = -1;
     int id = NULL;
-    float x = NULL;
-    float z = NULL;
+    double x = NULL;
+    double z = NULL;
 
     Node() {};
 
 
-    Node(float xValue, float zValue)
+    Node(double xValue, double zValue)
     {
         x = xValue;
         z = zValue;
     };
 
 
-    Node(int idValue, float xValue, float zValue)
+    Node(int idValue, double xValue, double zValue)
     {
         id = idValue;
         x = xValue;
@@ -81,7 +83,7 @@ public:
     Node* n1;
     Node* n2;
 
-    float A, B, C;
+    double A, B, C;
 
     Segment(Node& n1Value, Node& n2Value)
     {
@@ -103,7 +105,7 @@ public:
     };
 
     //В завивимости от знака возвращаемого числа определяет по какую сторону от отрезка лежит узел 
-    float inArea(Node* n)
+    double inArea(Node* n)
     {
         return -B * (n->z - n1->z) - A * (n->x - n1->x);
     }
@@ -140,7 +142,7 @@ public:
     // Возвращает точку пересечения прямых заданных данным отрезком и s1, если не пересекаются, возвращает одну из точек отрезка
     Node SegmentCross(Segment s1)
     {
-        float det = A * s1.B - s1.A * B;
+        double det = A * s1.B - s1.A * B;
         if (det == 0)
             return *n1;
         return Node(-(C * s1.B - s1.C * B) / det, -(A * s1.C - s1.A * C) / det);
@@ -159,14 +161,14 @@ struct LineSymStruct
 private:
     unsigned linetype = other;
 
-    float a = NULL;
-    float b = NULL;
+    double a = NULL;
+    double b = NULL;
 
 public:
     LineSymStruct() {};
 
     //Определение идет с помощью МНК по полученым значения
-    LineSymStruct(float xzSum, float xSum, float zSum, float x2Sum, float n)
+    LineSymStruct(double xzSum, double xSum, double zSum, double x2Sum, double n)
     {
         if (n * x2Sum == xSum * xSum)
         {
@@ -187,8 +189,8 @@ public:
             return Node(-1, -n.x, n.z);
         if (a == 0)
             return Node(-1, n.x, 2 * b - n.z);
-        float x0 = (n.z + (1.0f / a) * n.x - b) / (a + (1.0f / a));
-        float z0 = a * x0 + b;
+        double x0 = (n.z + (1.0f / a) * n.x - b) / (a + (1.0f / a));
+        double z0 = a * x0 + b;
         return (Node(-1, 2 * x0 - n.x, 2 * z0 - n.z));
     }
 
@@ -202,13 +204,13 @@ public:
     * Возвращает координаты для экрана SFML.Задан в подобранном разрешене,
     * меняется только масштаб для детального рассмотрения
     */
-    std::pair<float, float> drawScale(Node node, float scale = 5)
+    std::pair<double, double> drawScale(Node node, double scale = 5)
     {
         return std::make_pair(node.x * 1920 * scale + 50, (0.4 - node.z) * 1080 * scale);
     };
 
 
-    std::pair<float, float> drawScale(std::vector<double> node, float scale = 5)
+    std::pair<double, double> drawScale(std::vector<double> node, double scale = 5)
     {
         return std::make_pair(node[0] * 1920 * scale + 50, (0.4 - node[1]) * 1080 * scale);
     };
@@ -331,7 +333,7 @@ public:
                     {
                         std::stringstream ss(s);
                         int id, indexnum = 0;
-                        float x, z;
+                        double x, z;
 
                         while (std::getline(ss, str, ';'))
                         {
@@ -346,6 +348,7 @@ public:
                         }
 
                         Node node(id, x, z);
+                        node.toolType = detailTypeValue;
 
                         connect[id] = std::make_pair(-1, -1);
                         connect1[id] = std::make_pair(-1, -1);
@@ -465,7 +468,7 @@ public:
         if (symAxisPoints.size() == 0)
             return;
 
-        float xzSum = 0, xSum = 0, zSum = 0, x2Sum = 0, n = 0;
+        double xzSum = 0, xSum = 0, zSum = 0, x2Sum = 0, n = 0;
 
         for (int idElem : symAxisPoints)
         {
@@ -549,74 +552,70 @@ public:
     }
 
     //Построение контуров пустых областей и нахождение их площадей - формула площади Гаусса
-    std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>> intersection(ContourWalker& otherDetail,
-        unsigned detailTypeValue, std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>> lastSpaceArea)
+    std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>> intersection(ContourWalker& otherDetail,
+        unsigned detailTypeValue, std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>> lastSpaceArea)
     {
         std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpaceWish = detailTypeValue == tool2 ? connectSpace1 : connectSpace;
-        std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>> spaceArea = {};
-
+        std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>> spaceArea = {};
         for (int i = 0; i < connectSpaceWish.size(); ++i)
         {
-            float sumSquare = 0.0f;
+            double sumSquare = 0.0f;
             Node point1, point2;
 
             point1 = nodes[*connectSpaceWish[i].first.begin()];
 
-            spaceArea.push_back(std::make_pair(std::make_pair(i, 0), std::vector<std::vector<double>> { { point1.x, point1.z } }));
+            spaceArea.push_back(std::make_pair(std::make_pair(i, 0), std::vector<Node> { }));
 
             for (auto elem : connectSpaceWish[i].first)
             {
                 point2 = nodes[elem];
 
-                spaceArea[spaceArea.size() - 1].second.push_back({ point2.x, point2.z });
+                spaceArea[spaceArea.size() - 1].second.push_back(point2);
 
                 sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
                 point1 = point2;
             }
-
-            point2 = connectSpaceWish[i].second.first.proection(nodes[*std::prev(connectSpaceWish[i].first.end())]);
-
-            spaceArea[spaceArea.size() - 1].second.push_back({ point2.x, point2.z });
-
-            sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
-
-            point1 = point2;
 
             if (connectSpaceWish[i].second.first.n1->id != connectSpaceWish[i].second.first.n2->id and
                 connectSpaceWish[i].second.second.n1->id != connectSpaceWish[i].second.second.n2->id)
                 for (auto elem1 = std::next(&otherDetail.contour[connectSpaceWish[i].second.first.n1->placeInContour]);
-                    elem1 != &otherDetail.contour[connectSpaceWish[i].second.second.n2->placeInContour]; ++elem1)
-            {
-                point2 = **elem1;
+                    elem1 != std::next(&otherDetail.contour[connectSpaceWish[i].second.second.n2->placeInContour]); ++elem1)
+                    {
+                        point2 = **elem1;
 
-                spaceArea[spaceArea.size() - 1].second.push_back({ point2.x, point2.z });
+                        spaceArea[spaceArea.size() - 1].second.push_back(point2);
 
-                sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
+                        sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
-                point1 = point2;
-            }
+                        point1 = point2;
+                    }
             else
                 if (connectSpaceWish[i].second.first.n1->id != connectSpaceWish[i].second.first.n2->id)
                     for (auto elem1 = std::next(&otherDetail.contour[connectSpaceWish[i].second.first.n1->placeInContour]);
                         std::find(otherDetail.symAxisPoints.begin(), otherDetail.symAxisPoints.end(), (*std::prev(elem1))->id) == otherDetail.symAxisPoints.end(); ++elem1)
-            {
-                point2 = **elem1;
+                    {
+                        point2 = **elem1;
 
-                spaceArea[spaceArea.size() - 1].second.push_back({ point2.x, point2.z });
+                        spaceArea[spaceArea.size() - 1].second.push_back(point2);
 
-                sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
+                        sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
-                point1 = point2;
-            }
+                        point1 = point2;
+                    }
+                else
+                    if (connectSpaceWish[i].second.second.n1->id != connectSpaceWish[i].second.second.n2->id)
+                        for (auto elem1 = std::next(&otherDetail.contour[connectSpaceWish[i].second.second.n2->placeInContour]);
+                            std::find(otherDetail.symAxisPoints.begin(), otherDetail.symAxisPoints.end(), (*std::prev(elem1))->id) == otherDetail.symAxisPoints.end(); --elem1)
+                        {
+                            point2 = **elem1;
 
-            point2 = connectSpaceWish[i].second.second.proection(point1);
+                            spaceArea[spaceArea.size() - 1].second.insert(spaceArea[spaceArea.size() - 1].second.begin(), point2);
 
-            spaceArea[spaceArea.size() - 1].second.push_back({ point2.x, point2.z });
+                            sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
-            sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
-
-            point1 = point2;
+                            point1 = point2;
+                        }
 
             point2 = nodes[*connectSpaceWish[i].first.begin()];
 
@@ -624,8 +623,26 @@ public:
 
             spaceArea[i].first.second = abs(sumSquare);
         }
-
+        
+        
         //Попытка отслеживания контуров
+        std::vector<std::vector<std::vector<double>>> spaceAreaForDTW(spaceArea.size());
+
+        std::fill(spaceAreaForDTW.begin(), spaceAreaForDTW.end(), std::vector<std::vector<double>>{});
+
+        for (int i = 0; i < spaceArea.size(); i++)
+            for (auto point : spaceArea[i].second)
+                spaceAreaForDTW[i].push_back({ point.x, point.z });
+
+        std::vector<std::vector<std::vector<double>>> lastSpaceAreaForDTW(lastSpaceArea.size());
+
+        std::fill(lastSpaceAreaForDTW.begin(), lastSpaceAreaForDTW.end(), std::vector<std::vector<double>>{});
+
+        for (int i = 0; i < lastSpaceArea.size(); i++)
+            for (auto point : lastSpaceArea[i].second)
+                lastSpaceAreaForDTW[i].push_back({ point.x, point.z });
+
+        
         std::vector<std::pair<double, int>> distances(lastSpaceArea.size());
         std::fill(distances.begin(), distances.end(), std::make_pair(std::numeric_limits<double>::max(), -1));
 
@@ -638,7 +655,7 @@ public:
 
             for (int j = 0; j < lastSpaceArea.size(); j++)
             {
-                double distance = DTW::dtw_distance_only(spaceArea[i].second, lastSpaceArea[j].second, 2);
+                double distance = DTW::dtw_distance_only(spaceAreaForDTW[i], lastSpaceAreaForDTW[j], 2);
                 distanceMin, id = distance < distanceMin ? distance, lastSpaceArea[j].first.first : distanceMin, id;
             }
 
@@ -691,10 +708,19 @@ private:
     ContourWalker secondFigure;
     ContourWalker wpFigure;
 
-    std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>> spaceAreaTool1 = {};
-    std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>> spaceAreaTool2 = {};
+    std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>> spaceAreaTool1 = {};
+    std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>> spaceAreaTool2 = {};
 
-
+    void writeInOut(std::ofstream& fileOutValue, std::pair<std::pair<unsigned, double>, std::vector<Node>> elem, unsigned detailTypeValue, bool isSym = false)
+    {
+        fileOutValue << "Tool" + std::to_string(detailTypeValue) + "; " + "Square" + std::to_string(elem.first.first) + (isSym ? ".Sym" : "") + "\n";
+        fileOutValue << "Square: " + std::to_string(elem.first.second) + "\n";
+        fileOutValue << "Object type; node id;\n";
+        for (auto point : elem.second)
+        {
+            fileOutValue << detailTypeToString[point.toolType] + "; " + std::to_string(point.id) + (isSym ? ".Sym" : "") + "\n";
+        }
+    }
 public:
 
     CWM(unsigned time)
@@ -707,14 +733,14 @@ public:
     };
 
 
-    CWM(unsigned time, std::pair<std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>>,
-                                std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>>> spaceAreas)
+    CWM(unsigned time, std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>>,
+                                 std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>>> spaceAreas)
     {
         ss << std::setw(3) << std::setfill('0') << time;
 
-        firstFigure = ContourWalker("../data(1)/" + ss.str() + "-t1.csv2d");
-        secondFigure = ContourWalker("../data(1)/" + ss.str() + "-t2.csv2d");
-        wpFigure = ContourWalker("../data(1)/" + ss.str() + "-wp.csv2d");
+        firstFigure = ContourWalker("../data(1)/" + ss.str() + "-t1.csv2d", tool1);
+        secondFigure = ContourWalker("../data(1)/" + ss.str() + "-t2.csv2d", tool2);
+        wpFigure = ContourWalker("../data(1)/" + ss.str() + "-wp.csv2d", wp);
 
         spaceAreaTool1 = spaceAreas.first;
         spaceAreaTool2 = spaceAreas.second;
@@ -742,24 +768,16 @@ public:
         {
             for (auto elem : spaceAreaTool1)
             {
-                fileOut << "Tool" + std::to_string(tool1) + "; " + "Square" + std::to_string(elem.first.first) + "\n";
-                fileOut << "Square" + std::to_string(elem.first.second) + "\n";
-                fileOut << "x; z;\n";
-                for (auto point : elem.second)
-                {
-                    fileOut << std::to_string(point[0]) + "; " + std::to_string(point[1]) + "\n";
-                }
+                writeInOut(fileOut, elem, tool1);
+                if (firstFigure.symAxisPoints.size() != 0)
+                    writeInOut(fileOut, elem, tool1, true);
             }
 
             for (auto elem : spaceAreaTool2)
             {
-                fileOut << "Tool" + std::to_string(tool2) + "; " + "Square" + std::to_string(elem.first.first) + "\n";
-                fileOut << "Square- " + std::to_string(elem.first.second) + "\n";
-                fileOut << "x; z;\n";
-                for (auto point : elem.second)
-                {
-                    fileOut << std::to_string(point[0]) + "; " + std::to_string(point[1]) + "\n";
-                }
+                writeInOut(fileOut, elem, tool2);
+                if (secondFigure.symAxisPoints.size() != 0)
+                    writeInOut(fileOut, elem, tool2, true);
             }
             fileOut.close();
         }
@@ -818,8 +836,8 @@ public:
     }
 
     //Возвращает пару - пустые полости wp с Tool1 И Tool2
-    std::pair<std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>>,
-        std::vector<std::pair<std::pair<unsigned, float>, std::vector<std::vector<double>>>>> returnSpaceArea()
+    std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>>,
+        std::vector<std::pair<std::pair<unsigned, double>, std::vector<Node>>> > returnSpaceArea()
     {
         return std::make_pair(spaceAreaTool1, spaceAreaTool2);
     }
