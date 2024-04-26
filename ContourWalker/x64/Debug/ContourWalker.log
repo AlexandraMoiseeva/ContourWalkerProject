@@ -13,7 +13,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(9,52): wa
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(12,80): warning C4091: static : пропускается слева от "ReaderBikesEnum", когда ни одна переменная не объявлена
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(15,74): warning C4091: static : пропускается слева от "ReaderSettingEnum", когда ни одна переменная не объявлена
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(18,47): warning C4091: static : пропускается слева от "lineDirectionn", когда ни одна переменная не объявлена
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(227,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(167,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
           with
           [
               _Ty2=double
@@ -22,7 +22,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(227,86): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(227,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(167,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
           with
           [
               _Ty1=double
@@ -31,7 +31,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(227,60): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(228,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(168,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
           with
           [
               _Ty2=double
@@ -40,7 +40,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(228,86): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(228,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(168,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
           with
           [
               _Ty1=double
@@ -49,7 +49,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(228,60): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(250,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(190,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
           with
           [
               _Ty2=double
@@ -58,7 +58,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(250,86): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(250,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(190,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
           with
           [
               _Ty1=double
@@ -67,7 +67,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(250,60): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(251,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(191,86): warning C4244: аргумент: преобразование "_Ty2" в "T", возможна потеря данных
           with
           [
               _Ty2=double
@@ -76,7 +76,7 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(251,86): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(251,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(191,60): warning C4244: аргумент: преобразование "_Ty1" в "T", возможна потеря данных
           with
           [
               _Ty1=double
@@ -85,28 +85,27 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(251,60): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(363,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(387,55): warning C4244: =: преобразование "float" в "int", возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(390,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(393,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(649,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(659,44): warning C4244: =: преобразование "double" в "int", возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(817,69): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(303,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(327,55): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(330,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(333,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(569,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(749,69): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
           with
           [
               _Ty2=double
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(817,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(749,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
           with
           [
               _Ty1=double
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(821,61): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(753,61): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
           with
           [
               _Ty2=double
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(821,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(753,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
           with
           [
               _Ty1=double
@@ -115,4 +114,5 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(7,58): 
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(7,47): warning C4244: аргумент: преобразование "double" в "unsigned int", возможна потеря данных
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(30,35): warning C4305: аргумент: усечение из "double" в "float"
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(32,35): warning C4305: аргумент: усечение из "double" в "float"
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(654): warning C4715: CWM::returnNode: значение возвращается не при всех путях выполнения
   ContourWalker.vcxproj -> D:\VS\ContourWalker\ContourWalkerProject\x64\Debug\ContourWalker.exe

@@ -1,4 +1,4 @@
-Tool1; Square0
+Tool1; Square1
 Square: 0.000001
 Object type; node id;
 Workpiece; 98
@@ -13,7 +13,7 @@ Tool1; 18
 Tool1; 19
 Tool1; 20
 Tool1; 21
-Tool1; Square0.Sym
+Tool1; Square1.Sym
 Square: 0.000001
 Object type; node id;
 Workpiece; 98.Sym
@@ -28,7 +28,7 @@ Tool1; 18.Sym
 Tool1; 19.Sym
 Tool1; 20.Sym
 Tool1; 21.Sym
-Tool2; Square3
+Tool2; Square1
 Square: 0.000095
 Object type; node id;
 Workpiece; 1
@@ -48,7 +48,7 @@ Tool2; 79
 Tool2; 80
 Tool2; 81
 Tool2; 4
-Tool2; Square3.Sym
+Tool2; Square1.Sym
 Square: 0.000095
 Object type; node id;
 Workpiece; 1.Sym
@@ -68,21 +68,21 @@ Tool2; 79.Sym
 Tool2; 80.Sym
 Tool2; 81.Sym
 Tool2; 4.Sym
-Tool2; Square4
+Tool2; Square2
 Square: 0.000000
 Object type; node id;
 Workpiece; 28
 Workpiece; 29
 Workpiece; 30
 Tool2; 53
-Tool2; Square4.Sym
+Tool2; Square2.Sym
 Square: 0.000000
 Object type; node id;
 Workpiece; 28.Sym
 Workpiece; 29.Sym
 Workpiece; 30.Sym
 Tool2; 53.Sym
-Tool2; Square0
+Tool2; Square4
 Square: 0.000000
 Object type; node id;
 Workpiece; 47
@@ -90,7 +90,7 @@ Workpiece; 48
 Workpiece; 49
 Tool2; 39
 Tool2; 40
-Tool2; Square0.Sym
+Tool2; Square4.Sym
 Square: 0.000000
 Object type; node id;
 Workpiece; 47.Sym
