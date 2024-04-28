@@ -9,8 +9,8 @@ int main()
 
     window.setView(view);
 
-    std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>>,
-        std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>>> spaceAreas = {};
+    std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>>,
+        std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>>> spaceAreas = {};
     
     unsigned time = 1;
 

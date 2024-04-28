@@ -48,8 +48,8 @@ class Node
 {
 public:
     unsigned toolType = symAxis;
-    int placeInContour = -1;
-    int id = NULL;
+    unsigned placeInContour = std::numeric_limits<unsigned>::max();
+    unsigned id = NULL;
     double x = NULL;
     double z = NULL;
 
@@ -206,7 +206,7 @@ public:
 };
 
 /*
-* Класс, отвечающий за всю работу с одной из фигур
+* Класс, отвечающий за всю работу с одной из фигур Tool
 * Хранит:
 *   detailTypeNum - тип фигуры
 *   nodes - вектор, хранящий узлы в порядке считыввания
@@ -221,36 +221,24 @@ public:
               ставится пара - номера узлов отрезка, которого он касается. 
               В случае Tool1 и Tool2 - этот вектор пуст, в случае с wp - касание с Tool2.
               Если узел не касается, то в соответсвие ставится пара (-1, -1)
-*   connectSpace - хранит вектор пустых областей (для Tool1, Tool2 - с wp, у wp - c Tool1)
-                   - элемент - пара:
-                                  1) Список вершин, рассматриваемой фигуры
-                                  2) Пара - отрезок, которого касается первый и последний узел
-*   connectSpace - хранит вектор пустых областей (для Tool1, Tool2 - пустоц, у wp - c Tool2)
-                   - элемент - пара:
-                                  1) Список вершин, рассматриваемой фигуры
-                                  2) Пара - отрезок, которого касается первый и последний узел
 */
-class ContourWalker
+class ContourWalkerTool
 {
 public:
     int detailTypeNum = tool1;
     std::vector<Node> nodes = {};
     std::vector<Node*> contour = {};
 
-    std::list<int> symAxisPoints = {};
+    std::list<unsigned> symAxisPoints = {};
     LineSymStruct LineSym;
 
-    std::map<int, std::pair<int, int> > connect = {};
-    std::map<int, std::pair<int, int> > connect1 = {};
+    std::map<unsigned, std::pair<unsigned, unsigned> > connect = {};
+    std::map<unsigned, std::pair<unsigned, unsigned> > connect1 = {};
 
-    std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpace = {};
-    std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpace1 = {};
-
-
-    ContourWalker() {};
+    ContourWalkerTool() {};
 
 
-    ContourWalker(std::string filePathValue, int detailTypeValue = tool1)
+    ContourWalkerTool(std::string filePathValue, int detailTypeValue = tool1)
     {
         detailTypeNum = detailTypeValue;
         std::ifstream file;
@@ -299,7 +287,7 @@ public:
                     case readEdge:
                     {
                         int numContour = std::stoi(s);
-                        if (nodes[numContour].placeInContour == -1)
+                        if (nodes[numContour].placeInContour == std::numeric_limits<unsigned>::max())
                             nodes[numContour].placeInContour = contour.size();
 
                         contour.push_back(&nodes[numContour]);
@@ -391,7 +379,7 @@ public:
                 nodepoint1 = **it;
                 nodepoint2 = **std::next(it, -1);
             }
-            
+
             Drawer().drawLine(nodepoint1, nodepoint2, window, 100);
 
             if (symAxisPoints.size() == 0)
@@ -423,15 +411,53 @@ public:
 
         LineSym = LineSymStruct(xzSum, xSum, zSum, x2Sum, n);
     };
+};
+
+/*
+* Класс, отвечающий за всю работу с одной из фигур Tool
+* Хранит:
+*   detailTypeNum - тип фигуры
+*   nodes - вектор, хранящий узлы в порядке считыввания
+*   contour - вектор, хранящий указатели на узлы в порядке, образующем контур
+*   symAxisPoints - хранит номера узлом, лежащих на оси симметрии
+*   LineSym - ось симметрии, структуры LineSymStruct
+*   connect - хранит словарь, размера количества узлов, где в соответсвие номеру узла
+              ставится пара - номера узлов отрезка, которого он касается.
+              Если узел не касается, то в соответсвие ставится пара (-1, -1)
+*   connect1 - хранит словарь, размера количества узлов, где в соответсвие номеру узла
+              ставится пара - номера узлов отрезка, которого он касается.
+              Если узел не касается, то в соответсвие ставится пара (-1, -1)
+*   connectSpace - хранит вектор пустых областей
+                   - элемент - пара:
+                                  1) Список вершин, рассматриваемой фигуры
+                                  2) Пара - отрезок, которого касается первый и последний узел
+*   connectSpace - хранит вектор пустых областей
+                   - элемент - пара:
+                                  1) Список вершин, рассматриваемой фигуры
+                                  2) Пара - отрезок, которого касается первый и последний узел
+*/
+class ContourWalker : public ContourWalkerTool
+{
+public:
+    std::vector<std::pair< std::list<unsigned>, std::pair<Segment, Segment> >> connectSpace = {};
+
+    std::vector<std::pair< std::list<unsigned>, std::pair<Segment, Segment> >> connectSpace1 = {};
+
+
+    ContourWalker() : ContourWalkerTool() {}
+
+
+    ContourWalker(std::string filePathValue, int detailTypeValue = tool1) : ContourWalkerTool(filePathValue, detailTypeValue = tool1) {};
 
     //Определние соответсвующих connectSpace - нахождение контуров из некасающихся узлов и соответсвующих отрезков
-    void intersectionSpace(ContourWalker& otherDetail, unsigned detailTypeValue = tool1)
+    void intersectionSpace(ContourWalkerTool& otherDetail)
     {
+        unsigned detailTypeValue = otherDetail.detailTypeNum;
         bool StartSpaceContour = false;
         bool startRot = true;
         auto connectWish = detailTypeValue == tool2 ? connect1 : connect;
 
-        std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpaceWish;
+        std::vector<std::pair< std::list<unsigned>, std::pair<Segment, Segment> >> connectSpaceWish;
 
         for (auto it = contour.begin(); it != contour.end(); ++it)
         {
@@ -444,14 +470,14 @@ public:
                 if (StartSpaceContour == false)
                 {
                     if (connectWish[(*std::next(it, -1))->id].first != -1)
-                        connectSpaceWish.push_back(std::make_pair(std::list<int>{(*std::next(it, -1))->id},
+                        connectSpaceWish.push_back(std::make_pair(std::list<unsigned>{(*std::next(it, -1))->id},
                             std::make_pair(
                                 Segment(*otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].first].placeInContour],
                                     *otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].second].placeInContour]),
                                 Segment(*otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].first].placeInContour],
                                     *otherDetail.contour[otherDetail.nodes[connectWish[(*std::prev(it))->id].second].placeInContour]))));
                     else
-                        connectSpaceWish.push_back(std::make_pair(std::list<int>{(*std::next(it, -1))->id},
+                        connectSpaceWish.push_back(std::make_pair(std::list<unsigned>{(*std::next(it, -1))->id},
                             std::make_pair(
                                 Segment(*otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour],
                                     *otherDetail.contour[otherDetail.nodes[*otherDetail.symAxisPoints.begin()].placeInContour]),
@@ -492,11 +518,13 @@ public:
     }
 
     //Построение контуров пустых областей и нахождение их площадей - формула площади Гаусса
-    std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>> intersection(ContourWalker& otherDetail,
-        unsigned detailTypeValue, std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>> lastSpaceArea)
+    std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>> intersection(ContourWalkerTool& otherDetail, 
+        std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>> lastSpaceArea)
     {
-        std::vector<std::pair< std::list<int>, std::pair<Segment, Segment> >> connectSpaceWish = detailTypeValue == tool2 ? connectSpace1 : connectSpace;
-        std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>> spaceArea = {};
+        unsigned detailTypeValue = otherDetail.detailTypeNum;
+
+        std::vector<std::pair< std::list<unsigned>, std::pair<Segment, Segment> >> connectSpaceWish = detailTypeValue == tool2 ? connectSpace1 : connectSpace;
+        std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>> spaceArea = {};
         for (int i = 0; i < connectSpaceWish.size(); ++i)
         {
             double sumSquare = 0.0f;
@@ -504,13 +532,13 @@ public:
 
             point1 = nodes[*connectSpaceWish[i].first.begin()];
 
-            spaceArea.push_back(std::make_pair(std::make_pair(1000, 0), std::vector<std::pair<unsigned, unsigned>> { }));
+            spaceArea.push_back(std::make_pair(std::make_pair(1000, 0), std::make_pair(std::vector<unsigned> {}, std::vector<unsigned> {})));
 
             for (auto elem : connectSpaceWish[i].first)
             {
                 point2 = nodes[elem];
 
-                spaceArea[spaceArea.size() - 1].second.push_back(std::make_pair(point2.toolType, point2.id));
+                spaceArea[spaceArea.size() - 1].second.first.push_back(point2.id);
 
                 sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
@@ -524,7 +552,7 @@ public:
                     {
                         point2 = **elem1;
 
-                        spaceArea[spaceArea.size() - 1].second.push_back(std::make_pair(point2.toolType, point2.id));
+                        spaceArea[spaceArea.size() - 1].second.second.push_back(point2.id);
 
                         sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
@@ -537,7 +565,7 @@ public:
                     {
                         point2 = **elem1;
 
-                        spaceArea[spaceArea.size() - 1].second.push_back(std::make_pair(point2.toolType, point2.id));
+                        spaceArea[spaceArea.size() - 1].second.second.push_back(point2.id);
 
                         sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
@@ -550,7 +578,7 @@ public:
                         {
                             point2 = **elem1;
 
-                            spaceArea[spaceArea.size() - 1].second.insert(spaceArea[spaceArea.size() - 1].second.begin(), std::make_pair(point2.toolType, point2.id));
+                            spaceArea[spaceArea.size() - 1].second.second.insert(spaceArea[spaceArea.size() - 1].second.second.begin(), point2.id);
 
                             sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
@@ -572,7 +600,7 @@ public:
         {
             for (int j = 0; j < lastSpaceArea.size(); j++)
             {
-                if (isContourIntersection(spaceArea[i].second, lastSpaceArea[j].second))
+                if (isContourIntersection(spaceArea[i].second.second, lastSpaceArea[j].second.second, otherDetail))
                     spaceArea[i].first.first = lastSpaceArea[j].first.first;
             }
 
@@ -584,17 +612,14 @@ public:
     }
 
 private:
-    bool isContourIntersection(std::vector<std::pair<unsigned, unsigned>> oneContour,
-        std::vector<std::pair<unsigned, unsigned>> twoContour)
+    bool isContourIntersection(std::vector<unsigned> oneContour,
+        std::vector<unsigned> twoContour, ContourWalkerTool& otherDetail)
     {
-        unsigned connectionAmount = 0;
-
-        for (auto elem : oneContour)
-            for (auto elem1 : twoContour)
-                if (elem.first == elem1.first and elem.second == elem1.second)
-                    if (++connectionAmount >  1)
-                        return true;
-        return false;
+        if (otherDetail.nodes[*oneContour.begin()].placeInContour > otherDetail.nodes[*std::prev(twoContour.end())].placeInContour)
+            return false;
+        if (otherDetail.nodes[*twoContour.begin()].placeInContour > otherDetail.nodes[*std::prev(oneContour.end())].placeInContour)
+            return false;
+        return true;
     };
 
 };
@@ -613,39 +638,43 @@ class CWM
 {
 private:
     std::stringstream ss;
-    ContourWalker firstFigure;
-    ContourWalker secondFigure;
+    ContourWalkerTool firstFigure;
+    ContourWalkerTool secondFigure;
     ContourWalker wpFigure;
 
-    std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>> spaceAreaTool1 = {};
-    std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>> spaceAreaTool2 = {};
+    std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>> spaceAreaTool1 = {};
+    std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>> spaceAreaTool2 = {};
 
-    void writeInOut(std::ofstream& fileOutValue, std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>> elem,
+    void writeInOut(std::ofstream& fileOutValue, std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>> elem,
         unsigned detailTypeValue, bool isSym = false)
     {
         fileOutValue << "Tool" + std::to_string(detailTypeValue) + "; " + "Square" + std::to_string(elem.first.first) + (isSym ? ".Sym" : "") + "\n";
-        fileOutValue << "Square: " + std::to_string(elem.first.second) + "\n";
+        fileOutValue << "Square: " << std::setprecision(15) << elem.first.second << "\n";
         fileOutValue << "Object type; node id;\n";
-        for (auto point : elem.second)
+        for (auto point : elem.second.first)
         {
-            fileOutValue << detailTypeToString[point.first] + "; " + std::to_string(point.second) + (isSym ? ".Sym" : "") + "\n";
+            fileOutValue << detailTypeToString[wp] + "; " + std::to_string(point) + (isSym ? ".Sym" : "") + "\n";
+        }
+        for (auto point : elem.second.second)
+        {
+            fileOutValue << detailTypeToString[detailTypeValue] + "; " + std::to_string(point) + (isSym ? ".Sym" : "") + "\n";
         }
     }
 
-    Node returnNode(std::pair<unsigned, unsigned> node)
+    Node returnNode(unsigned detailValue, unsigned node)
     {
-        switch (node.first)
+        switch (detailValue)
         {
         case wp:
-            return wpFigure.nodes[node.second];
+            return wpFigure.nodes[node];
             break;
 
         case tool1:
-            return firstFigure.nodes[node.second];
+            return firstFigure.nodes[node];
             break;
 
         case tool2:
-            return secondFigure.nodes[node.second];
+            return secondFigure.nodes[node];
             break;
 
         default:
@@ -659,19 +688,19 @@ public:
     {
         ss << std::setw(3) << std::setfill('0') << time;
 
-        firstFigure = ContourWalker("../data(1)/" + ss.str() + "-t1.csv2d");
-        secondFigure = ContourWalker("../data(1)/" + ss.str() + "-t2.csv2d");
-        wpFigure = ContourWalker("../data(1)/" + ss.str() + "-wp.csv2d");
+        firstFigure = ContourWalkerTool("../data(1)/" + ss.str() + "-t1.csv2d", tool1);
+        secondFigure = ContourWalkerTool("../data(1)/" + ss.str() + "-t2.csv2d", tool2);
+        wpFigure = ContourWalker("../data(1)/" + ss.str() + "-wp.csv2d", wp);
     };
 
 
-    CWM(unsigned time, std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>>,
-                                 std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>>> spaceAreas)
+    CWM(unsigned time, std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>>,
+        std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>>> spaceAreas)
     {
         ss << std::setw(3) << std::setfill('0') << time;
 
-        firstFigure = ContourWalker("../data(1)/" + ss.str() + "-t1.csv2d", tool1);
-        secondFigure = ContourWalker("../data(1)/" + ss.str() + "-t2.csv2d", tool2);
+        firstFigure = ContourWalkerTool("../data(1)/" + ss.str() + "-t1.csv2d", tool1);
+        secondFigure = ContourWalkerTool("../data(1)/" + ss.str() + "-t2.csv2d", tool2);
         wpFigure = ContourWalker("../data(1)/" + ss.str() + "-wp.csv2d", wp);
 
         spaceAreaTool1 = spaceAreas.first;
@@ -686,13 +715,11 @@ public:
         secondFigure.symAxisInizialisation();
         wpFigure.symAxisInizialisation();
 
-        firstFigure.intersectionSpace(wpFigure, wp);
-        secondFigure.intersectionSpace(wpFigure, wp);
-        wpFigure.intersectionSpace(firstFigure, tool1);
-        wpFigure.intersectionSpace(secondFigure, tool2);
+        wpFigure.intersectionSpace(firstFigure);
+        wpFigure.intersectionSpace(secondFigure);
 
-        spaceAreaTool1 = wpFigure.intersection(firstFigure, tool1, spaceAreaTool1);
-        spaceAreaTool2 = wpFigure.intersection(secondFigure, tool2, spaceAreaTool2);
+        spaceAreaTool1 = wpFigure.intersection(firstFigure, spaceAreaTool1);
+        spaceAreaTool2 = wpFigure.intersection(secondFigure, spaceAreaTool2);
 
         std::ofstream fileOut("../returnData/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
 
@@ -701,15 +728,15 @@ public:
             for (auto elem : spaceAreaTool1)
             {
                 writeInOut(fileOut, elem, tool1);
-                if (firstFigure.symAxisPoints.size() != 0)
-                    writeInOut(fileOut, elem, tool1, true);
+                /*if (firstFigure.symAxisPoints.size() != 0)
+                    writeInOut(fileOut, elem, tool1, true);*/
             }
 
             for (auto elem : spaceAreaTool2)
             {
                 writeInOut(fileOut, elem, tool2);
-                if (secondFigure.symAxisPoints.size() != 0)
-                    writeInOut(fileOut, elem, tool2, true);
+                /*if (secondFigure.symAxisPoints.size() != 0)
+                    writeInOut(fileOut, elem, tool2, true);*/
             }
             fileOut.close();
         }
@@ -734,18 +761,34 @@ public:
 
         for (auto elem: spaceArea)
         {
-            auto point0 = elem.second[0];
+            auto point0 = elem.second.first[0];
 
-            for (auto point = std::next(elem.second.begin()); point != elem.second.end(); point++)
+            for (auto point = std::next(elem.second.first.begin()); point != elem.second.first.end(); point++)
             {
-                Drawer().drawLine(returnNode(point0), returnNode(*point), window);
+                Drawer().drawLine(returnNode(wp, point0), returnNode(wp, *point), window);
 
                 point0 = *point;
             }
 
-            Drawer().drawLine(returnNode(point0), returnNode(elem.second[0]), window);
+            if (elem.second.second.size() > 0)
+            {
+                Drawer().drawLine(returnNode(wp, point0), returnNode(toolNumber, elem.second.second[0]), window);
 
-            auto textPoint = Drawer().drawScale(returnNode(point0));
+                point0 = elem.second.second[0];
+
+                for (auto point = std::next(elem.second.second.begin()); point != elem.second.second.end(); point++)
+                {
+                    Drawer().drawLine(returnNode(toolNumber, point0), returnNode(toolNumber, *point), window);
+
+                    point0 = *point;
+                }
+
+                Drawer().drawLine(returnNode(toolNumber, point0), returnNode(wp, elem.second.first[0]), window);
+            }
+            else
+                Drawer().drawLine(returnNode(wp, point0), returnNode(wp, elem.second.first[0]), window);
+
+            auto textPoint = Drawer().drawScale(returnNode(toolNumber, point0));
             text.setPosition(textPoint.first + 50, textPoint.second + 50);
             text.setString(std::to_string(elem.first.second));
             window.draw(text);
@@ -762,14 +805,14 @@ public:
         firstFigure.draw(window);
         secondFigure.draw(window);
         wpFigure.draw(window);
-
+        
         drawSpace(window, tool1);
         drawSpace(window, tool2);
     }
 
     //Возвращает пару - пустые полости wp с Tool1 И Tool2
-    std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>>,
-        std::vector<std::pair<std::pair<unsigned, double>, std::vector<std::pair<unsigned, unsigned>>>> > returnSpaceArea()
+    std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>>,
+        std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>> > returnSpaceArea()
     {
         return std::make_pair(spaceAreaTool1, spaceAreaTool2);
     }

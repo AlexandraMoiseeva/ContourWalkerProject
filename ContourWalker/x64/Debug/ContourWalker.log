@@ -85,27 +85,27 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(191,60): 
           [
               T=float
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(303,1): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(327,55): warning C4244: =: преобразование "float" в "int", возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(330,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(333,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(569,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(749,69): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(291,1): warning C4267: =: преобразование из "size_t" в "unsigned int"; возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(315,55): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(318,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(321,47): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(597,1): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(792,69): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
           with
           [
               _Ty2=double
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(749,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(792,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
           with
           [
               _Ty1=double
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(753,61): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(796,61): warning C4244: аргумент: преобразование "_Ty2" в "float", возможна потеря данных
           with
           [
               _Ty2=double
           ]
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(753,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(796,46): warning C4244: аргумент: преобразование "_Ty1" в "float", возможна потеря данных
           with
           [
               _Ty1=double
@@ -114,5 +114,5 @@ D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(7,58): 
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(7,47): warning C4244: аргумент: преобразование "double" в "unsigned int", возможна потеря данных
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(30,35): warning C4305: аргумент: усечение из "double" в "float"
 D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.cpp(32,35): warning C4305: аргумент: усечение из "double" в "float"
-D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(654): warning C4715: CWM::returnNode: значение возвращается не при всех путях выполнения
+D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\ContourWalker.h(683): warning C4715: CWM::returnNode: значение возвращается не при всех путях выполнения
   ContourWalker.vcxproj -> D:\VS\ContourWalker\ContourWalkerProject\x64\Debug\ContourWalker.exe
