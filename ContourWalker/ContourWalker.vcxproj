@@ -104,13 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\SFML-2.6.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SFML-2.6.1\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\VS\ContourWalker\ContourWalkerProject\ContourWalker\SFML-2.6.1\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\SFML-2.6.1\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

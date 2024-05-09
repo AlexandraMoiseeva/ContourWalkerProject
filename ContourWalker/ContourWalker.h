@@ -235,6 +235,7 @@ public:
     std::map<unsigned, std::pair<unsigned, unsigned> > connect = {};
     std::map<unsigned, std::pair<unsigned, unsigned> > connect1 = {};
 
+
     ContourWalkerTool() {};
 
 
