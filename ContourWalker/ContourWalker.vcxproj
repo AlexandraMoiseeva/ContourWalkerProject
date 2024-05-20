@@ -132,10 +132,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ContourWalker.cpp" />
+    <ClCompile Include="GeometryInit.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContourWalker.h" />
-    <ClInclude Include="DTW.hpp" />
+    <ClInclude Include="Drawer.h" />
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Reader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

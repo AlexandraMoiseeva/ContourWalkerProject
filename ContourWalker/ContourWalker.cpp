@@ -1,5 +1,7 @@
 ﻿#include <iostream>
+
 #include <SFML/Graphics.hpp>
+
 #include "ContourWalker.h" 
 
 int main()
@@ -9,8 +11,7 @@ int main()
 
     window.setView(view);
 
-    std::pair<std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>>,
-        std::vector<std::pair<std::pair<unsigned, double>, std::pair<std::vector<unsigned>, std::vector<unsigned>>>>> spaceAreas = {};
+    //std::list<SpaceArea> spaceAreas = {};
     
     unsigned time = 1;
 
@@ -58,12 +59,13 @@ int main()
 
         window.clear();
 
-        CWM cwmObject(time, spaceAreas);
+        CWM cwmObject(time, 2, 1);
+
         cwmObject.findSpace();
 
         cwmObject.drawAll(window);
 
-        spaceAreas = cwmObject.returnSpaceArea();
+        //spaceAreas = cwmObject.spaceAreas;
 
         sf::sleep(sf::milliseconds(300*1));
 

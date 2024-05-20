@@ -1,5 +1,5 @@
 Tool2; Square1
-Square: 
+Square: 2.68119218044651e-05
 Object type; node id;
 Workpiece; 1
 Workpiece; 2
@@ -19,7 +19,7 @@ Tool2; 80
 Tool2; 81
 Tool2; 4
 Tool2; Square2
-Square: 
+Square: 1.92634978218864e-07
 Object type; node id;
 Workpiece; 35
 Workpiece; 36
