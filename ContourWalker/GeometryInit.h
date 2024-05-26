@@ -77,17 +77,17 @@ public:
 class Contour
 {
 public:
-    Node* beginNode = NULL;
-    Node* endNode = NULL;
+    std::list<Node*>::iterator beginNode;
+    std::list<Node*>::iterator endNode;
 
     Contour() {};
 
 
-    Contour(Node* beginNodeValue, Node* endNodeValue)
-    {
-        beginNode = beginNodeValue;
-        endNode = endNodeValue;
-    }
+    Contour(std::list<Node*>::iterator beginNodeValue, std::list<Node*>::iterator endNodeValue) : 
+        beginNode(beginNodeValue), endNode(endNodeValue) {};
+
+    Contour(std::list<Node*>::iterator nodeValue) : beginNode(nodeValue), endNode(nodeValue) {};
+
 };
 
 
@@ -104,7 +104,7 @@ public:
     Contour contourTool;
     Contour contourWP;
 
-    SpaceArea(unsigned detailToolIdValue, unsigned detailWPIdValue, Contour contourToolValue, Contour contourWPValue)
+    SpaceArea(unsigned detailWPIdValue, unsigned detailToolIdValue, Contour contourWPValue, Contour contourToolValue)
     {
         detailToolId = detailToolIdValue;
         detailWPId = detailWPIdValue;
@@ -116,52 +116,56 @@ public:
     //ѕостроение контуров пустых областей и нахождение их площадей - формула площади √аусса
     void intersection()
     {
-        double sumSquare = 0.0f;
+        double sumSquare = 0.0;
         Node point1, point2;
 
-        point1 = *contourWP.beginNode;
+        point1 = **contourWP.beginNode;
 
         for (auto elem = contourWP.beginNode; elem != std::next(contourWP.endNode); ++elem)
         {
-            point2 = *elem;
+            point2 = **elem;
 
             sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
             point1 = point2;
         }
 
-        for (auto elem1 = contourTool.beginNode; elem1 != std::next(contourTool.endNode); ++elem1)
+        for (auto elem1 = contourTool.endNode; elem1 != std::next(contourTool.beginNode); ++elem1)
         {
-            point2 = *elem1;
+            point2 = **elem1;
 
             sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
             point1 = point2;
         }
 
-        point2 = *contourWP.beginNode;
+        point2 = **contourWP.beginNode;
 
         sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
         spaceSquare = abs(sumSquare);
     }
 
-    bool colocationSpacArea(SpaceArea lastSpaceArea)
+    bool colocationSpaceArea(SpaceArea &lastSpaceArea)
     {
-        if (isContourIntersection(lastSpaceArea.contourTool))
-            spaceAreaId = lastSpaceArea.spaceAreaId;
-
-        if (spaceAreaId == std::numeric_limits<unsigned>::max())
+        if (lastSpaceArea.detailToolId != detailToolId or lastSpaceArea.detailWPId != detailWPId)
             return false;
-        return true;
+
+        if (isContourIntersection(lastSpaceArea.contourTool))
+        {
+            spaceAreaId = lastSpaceArea.spaceAreaId;
+            return true;
+        }
+
+        return false;
     }
 
 private:
-    bool isContourIntersection(Contour otherDetail)
+    bool isContourIntersection(Contour &otherDetail) const
     {
-        if (contourTool.beginNode->placeInContour > otherDetail.endNode->placeInContour)
+        if ((*contourTool.beginNode)->placeInContour < (*otherDetail.endNode)->placeInContour)
             return false;
-        if (otherDetail.beginNode->placeInContour > contourTool.endNode->placeInContour)
+        if ((*otherDetail.beginNode)->placeInContour < (*contourTool.endNode)->placeInContour)
             return false;
         return true;
     };

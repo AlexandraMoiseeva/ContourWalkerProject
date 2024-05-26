@@ -10,8 +10,6 @@ int main()
     sf::View view(sf::FloatRect(0, 0, 960 * 1.5, 540 * 1.5));
 
     window.setView(view);
-
-    //std::list<SpaceArea> spaceAreas = {};
     
     unsigned time = 1;
 
@@ -64,8 +62,6 @@ int main()
         cwmObject.findSpace();
 
         cwmObject.drawAll(window);
-
-        //spaceAreas = cwmObject.spaceAreas;
 
         sf::sleep(sf::milliseconds(300*1));
 

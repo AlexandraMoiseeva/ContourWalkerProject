@@ -11,21 +11,11 @@
 #include "Geometry.h"
 #include "Reader.h"
 
-/*
-* Класс, отвечающий за решение задачи в общем
-* Хранит:
-*   ss - номер итерации в нужном формате
-*   firstFigure - Tool1, в классе ContourWalker
-*   secondFigure - Tool2, в классе ContourWalker
-*   wpFigure - WP, в классе ContourWalker
-*   spaceAreaTool1 - хранит пустые области Wp с Tool1, их площадь, их номер
-*   spaceAreaTool2 - хранит пустые области Wp с Tool2, их площадь, их номер
-*/
+
 class CWM
 {
 public:
-    std::list< std::list<SpaceArea>> spaceAreas;
-    std::list< std::list<SpaceArea>> lastSpaceAreas;
+    std::list< std::list<SpaceArea>> spaceAreas = {};
 private:
     std::stringstream ss;
     std::list<ContourWalkerTool> toolFigures;
@@ -34,20 +24,30 @@ private:
     
     void writeInOut(std::ofstream& fileOutValue, SpaceArea elem, bool isSym = false)
     {
-        fileOutValue << "Tool" + std::to_string(elem.detailToolId) + "; " + "Square" + std::to_string(elem.spaceAreaId) + (isSym ? ".Sym" : "") + "\n";
-        fileOutValue << "Square: " << std::setprecision(15) << elem.spaceSquare << "\n";
+        fileOutValue << "Tool" + std::to_string((int)elem.detailToolId - (int)tool) + "; " 
+            "Workpiece" + std::to_string((int)elem.detailWPId - (int)wp) + "; " 
+            + "Square" + std::to_string((int)elem.spaceAreaId) + (isSym ? ".Sym" : "") + ";\n";
+
+        fileOutValue << "Square: " << std::setprecision(15) << elem.spaceSquare << ";\n";
+
         fileOutValue << "Object type; node id;\n";
+
         for (auto point = elem.contourWP.beginNode; point != std::next(elem.contourWP.endNode); ++point)
         {
-            fileOutValue << "; " + std::to_string(point->id) + (isSym ? ".Sym" : "") + "\n";
+            fileOutValue << "Workpiece" + std::to_string((int)elem.detailWPId - (int)wp) + "; "
+                + std::to_string((*point)->id) + (isSym ? ".Sym" : "") + ";\n";
         }
-        for (auto point = elem.contourTool.beginNode; point != std::next(elem.contourTool.endNode); ++point)
+        for (auto point = elem.contourTool.endNode; point != std::next(elem.contourTool.beginNode); ++point)
         {
-            fileOutValue << "; " + std::to_string(point->id) + (isSym ? ".Sym" : "") + "\n";
+            fileOutValue << "Tool" + std::to_string((int)elem.detailToolId - (int)tool) + "; "
+                + std::to_string((*point)->id) + (isSym ? ".Sym" : "") + ";\n";
         }
     }
 
 public:
+
+    CWM() {};
+
 
     CWM(unsigned time, unsigned toolNumber, unsigned wpNumber)
     {
@@ -67,12 +67,6 @@ public:
 
     };
 
-
-    CWM(unsigned time, unsigned toolNumber, unsigned wpNumber, std::list< std::list<SpaceArea>> spaceAreasValue) : CWM(time, toolNumber, wpNumber)
-    {
-        lastSpaceAreas = spaceAreasValue;
-    };
-    
     //Нахождние областей и запись в папку returnData
     void findSpace()
     {
@@ -92,10 +86,46 @@ public:
         }
 
         std::ofstream fileOut("../returnData/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
-        
+
+        for (std::list<SpaceArea> elemList : spaceAreas)
+            for (SpaceArea elem : elemList)
+            {
+                writeInOut(fileOut, elem);
+            }
     }
 
-    //Отрисовка пустых областей
+
+    void trackSpaceArea(CWM& otherCWM)
+    {
+        /*
+        for (int i = 0; i < spaceAreas.size(); ++i)
+        {
+            for (std::list<SpaceArea>::iterator elem = std::next(spaceAreas.begin(), i)->begin();
+                elem != std::next(spaceAreas.begin(), i)->end(); ++elem)
+            {
+                int maxId = 0;
+
+                if (spaceAreas.size() == otherCWM.spaceAreas.size())
+                {
+                    for (std::list<SpaceArea>::iterator elem1 = std::next(otherCWM.spaceAreas.begin(), i)->begin();
+                        elem1 != std::next(otherCWM.spaceAreas.begin(), i)->end(); ++elem1)
+                    {
+                        if (elem1->spaceAreaId > maxId)
+                            maxId = elem1->spaceAreaId;
+
+                        elem->colocationSpaceArea(*elem1);
+                    }
+                }
+
+
+                if (elem->spaceAreaId == std::numeric_limits<unsigned>::max())
+                    elem->spaceAreaId = ++maxId;
+
+            }
+        }
+        */
+    }
+
 
     void drawSpace(sf::RenderWindow& window)
     {
@@ -114,30 +144,30 @@ public:
         for (auto elemList : spaceAreas)
             for (auto elem: elemList)
             {
-                auto point0 = *elem.contourWP.beginNode;
+                auto point0 = **elem.contourWP.beginNode;
 
-                for (auto point = std::next(elem.contourWP.beginNode); point != elem.contourWP.endNode; point++)
+                for (auto point = std::next(elem.contourWP.beginNode); point != elem.contourWP.endNode; ++point)
                 {
-                    Drawer().drawLine(point0, *point, window);
+                    Drawer().drawLine(point0, **point, window);
 
-                    point0 = *point;
+                    point0 = **point;
                 }
 
-                if (elem.contourTool.endNode - elem.contourTool.beginNode > 0)
+                if (((*elem.contourTool.beginNode)->placeInContour - (*elem.contourTool.endNode)->placeInContour) > 0)
                 {
-                    Drawer().drawLine(point0, *elem.contourTool.beginNode, window);
+                    Drawer().drawLine(point0, **elem.contourTool.endNode, window);
 
-                    point0 = *elem.contourTool.beginNode;
+                    point0 = **elem.contourTool.endNode;
 
-                    for (auto point = std::next(elem.contourTool.beginNode); point != elem.contourTool.endNode; point++)
+                    for (auto point = std::next(elem.contourTool.endNode); point != std::next(elem.contourTool.beginNode); ++point)
                     {
-                        Drawer().drawLine(point0, *point, window);
+                        Drawer().drawLine(point0, **point, window);
 
-                        point0 = *point;
+                        point0 = **point;
                     }
                 }
 
-                Drawer().drawLine(point0, *elem.contourWP.endNode, window);
+                Drawer().drawLine(point0, **elem.contourWP.beginNode, window);
 
                 auto textPoint = Drawer().drawScale(point0);
                 text.setPosition(textPoint.first + 50, textPoint.second + 50);
@@ -145,7 +175,7 @@ public:
                 window.draw(text);
 
                 text.setPosition(textPoint.first + 50, textPoint.second);
-                text.setString(std::to_string(elem.detailToolId) + '.' + std::to_string(elem.spaceAreaId));
+                text.setString(std::to_string(elem.detailWPId) + "." + std::to_string(elem.detailToolId) + '.' + std::to_string(elem.spaceAreaId));
                 window.draw(text);
             }
 

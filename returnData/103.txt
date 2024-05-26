@@ -1,27 +1,29 @@
-Tool2; Square1
-Square: 3.10657380856545e-05
+Tool2; WP4294967295; Square4294967295
+Square: 3.10657080846667e-05
 Object type; node id;
-Workpiece; 1
-Workpiece; 2
-Workpiece; 3
-Workpiece; 4
-Workpiece; 5
-Workpiece; 6
-Workpiece; 7
-Workpiece; 8
-Tool2; 74
-Tool2; 75
-Tool2; 76
-Tool2; 77
-Tool2; 78
-Tool2; 79
-Tool2; 80
-Tool2; 81
-Tool2; 4
-Tool2; Square2
-Square: 1.89324126625978e-07
+; 1
+; 2
+; 3
+; 4
+; 5
+; 6
+; 7
+; 8
+; 73
+; 74
+; 75
+; 76
+; 77
+; 78
+; 79
+; 80
+; 81
+; 4
+Tool2; WP4294967295; Square4294967295
+Square: 1.89321383264884e-07
 Object type; node id;
-Workpiece; 33
-Workpiece; 34
-Workpiece; 35
-Tool2; 53
+; 33
+; 34
+; 35
+; 52
+; 53
