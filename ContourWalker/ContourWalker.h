@@ -112,7 +112,6 @@ public:
                 elem != std::next(spaceAreas.begin(), i)->end(); ++elem)
             {
                 
-
                 if (spaceAreas.size() == lastSpaceAreas.size())
                 {
                     for (std::list<SpaceArea>::iterator elem1 = std::next(lastSpaceAreas.begin(), i)->begin();
@@ -163,19 +162,20 @@ public:
                     point0 = **point;
                 }
 
-                if (((*elem.contourTool.begin(cntrTool))->placeInContour - (*elem.contourTool.end(cntrTool))->placeInContour) > 0)
-                {
-                    Drawer().drawLine(point0, **elem.contourTool.begin(cntrTool), window);
-
-                    point0 = **elem.contourTool.begin(cntrTool);
-
-                    for (auto point = std::next(elem.contourTool.begin(cntrTool)); point != std::next(elem.contourTool.end(cntrTool)); ++point)
+                if (elem.contourTool.endNode != std::numeric_limits<unsigned>::max() and elem.contourTool.beginNode != std::numeric_limits<unsigned>::max())
+                    if (((*elem.contourTool.begin(cntrTool))->placeInContour - (*elem.contourTool.end(cntrTool))->placeInContour) > 0)
                     {
-                        Drawer().drawLine(point0, **point, window);
+                        Drawer().drawLine(point0, **elem.contourTool.begin(cntrTool), window);
 
-                        point0 = **point;
+                        point0 = **elem.contourTool.begin(cntrTool);
+
+                        for (auto point = std::next(elem.contourTool.begin(cntrTool)); point != std::next(elem.contourTool.end(cntrTool)); ++point)
+                        {
+                            Drawer().drawLine(point0, **point, window);
+
+                            point0 = **point;
+                        }
                     }
-                }
                 Drawer().drawLine(point0, **elem.contourWP.begin(cntrWP), window);
 
                 auto textPoint = Drawer().drawScale(point0);

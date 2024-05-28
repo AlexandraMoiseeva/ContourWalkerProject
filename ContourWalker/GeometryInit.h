@@ -253,8 +253,7 @@ public:
     //Возвращает узел симметричный n
     Node getSymNode(Node n)
     {
-        if (linetype == vertical)
-            return Node(NULL, -n.x, n.z);
+        return Node(NULL, -n.x, n.z);
         
         if (abs(a) < 1e-5)
             return Node(NULL, n.x, 2 * b - n.z);

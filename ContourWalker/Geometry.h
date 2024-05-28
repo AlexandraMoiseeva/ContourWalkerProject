@@ -153,15 +153,16 @@ public:
         unsigned detailTypeValue = otherDetail.detailTypeNum;
         bool StartSpaceContour = false;
         int spaceAreaCount = 0;
+        int dopusk = 0;
 
-        for (auto it = contour.begin(); it != contour.end(); ++it)
+        for (auto it = std::next(contour.begin()); it != contour.end(); ++it)
         {
-
             if (std::next(connect.begin(), (*it)->id)->first != detailTypeValue and
                 !(*it)->isSym)
             {
                 if (StartSpaceContour == false)
                 {
+
                     if (std::next(connect.begin(), (*std::prev(it))->id)->first == detailTypeValue)
                     {
                         spaceAreas.push_back(
@@ -185,7 +186,10 @@ public:
                                         ));
                         }
                         else
+                        {
+                            ++dopusk;
                             continue;
+                        }
 
                     StartSpaceContour = true;
                     ++spaceAreaCount;
@@ -209,18 +213,23 @@ public:
                     if (std::next(connect.begin(), (*it)->id)->first == detailTypeValue)
                     {
                         if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
-                        {
+                        {                            
                             std::list<Node*>::iterator it2 = (std::prev(spaceAreas.end()))->contourTool.begin(otherDetail.contour);
+                            std::list<Node*>::iterator it3 = std::next(otherDetail.contour.begin(),
+                                std::next(otherDetail.nodes.begin(), (std::next(connect.begin(),
+                                    (*it)->id))->second.n1)->placeInContour);
 
-                            for (std::list<Node*>::iterator it1 = it2;
-                                it1 != std::next(otherDetail.contour.begin(),
-                                    std::next(otherDetail.nodes.begin(), (std::next(connect.begin(),
-                                        (*it)->id))->second.n1)->placeInContour); --it1)
-                            {
-                                (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
-                            }
+                            if((*it2)->placeInContour < (*it3)->placeInContour)
+                                for (std::list<Node*>::iterator it1 = std::prev(it2); it1 != it3; ++it1)
+                                {
+                                    (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
+                                }
+                            else
+                                for (std::list<Node*>::iterator it1 = std::prev(it2); it1 != it3; --it1)
+                                {
+                                    (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
+                                }
                         }
-
                         else
                         {
                             std::list<Node*>::iterator it1 = std::next(otherDetail.contour.begin(),
@@ -229,7 +238,7 @@ public:
 
                             (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
 
-                            while (true)
+                            while (it1 != otherDetail.contour.end())
                             {
                                 ++it1;
                                 (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
@@ -247,7 +256,7 @@ public:
 
                             (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
 
-                            while (true)
+                            while (it1 != otherDetail.contour.begin())
                             {
                                 --it1;
                                 (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
@@ -264,16 +273,21 @@ public:
 
                 }
             }
-        }     
+        }
 
+        if (spaceAreaCount == 0)
+            return;
 
         std::list<SpaceArea>::iterator maxSquareIterator = std::prev(spaceAreas.end());
         double maxSquare = 0;
 
         for (std::list<SpaceArea>::iterator elem = std::next(spaceAreas.end(), -spaceAreaCount); elem != spaceAreas.end(); ++elem)
         {
+            if ((std::prev(spaceAreas.end())->contourTool.beginNode == std::numeric_limits<unsigned>::max()) or
+                (std::prev(spaceAreas.end())->contourTool.endNode == std::numeric_limits<unsigned>::max()))
+                continue;
             elem->intersection(contour, otherDetail.contour);
-
+            
             if (elem->spaceSquare > maxSquare)
             {
                 maxSquare = elem->spaceSquare;
@@ -282,7 +296,7 @@ public:
         }
 
         spaceAreas.erase(maxSquareIterator);
-
+        
     }
 
 };
