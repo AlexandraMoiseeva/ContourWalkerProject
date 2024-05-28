@@ -13,6 +13,17 @@ int main()
     
     unsigned time = 1;
 
+    std::string folder = "data(0)";
+
+    if (std::filesystem::exists("../return" + folder))
+    {
+        std::filesystem::remove_all("../return" + folder);
+    }
+
+    std::filesystem::create_directory("../return" + folder);
+
+    std::list< std::list<SpaceArea>> lastSpaceAreas = {};
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -57,9 +68,12 @@ int main()
 
         window.clear();
 
-        CWM cwmObject(time, 2, 1);
+        CWM cwmObject(folder, time, 2, 1);
 
         cwmObject.findSpace();
+        
+        cwmObject.trackSpaceArea(lastSpaceAreas);
+        lastSpaceAreas = cwmObject.spaceAreas;
 
         cwmObject.drawAll(window);
 
@@ -67,7 +81,7 @@ int main()
 
         window.display();
 
-        if (time++ == 113)
+        if (time++ == 90)
             time = 1;
     }
 

@@ -109,6 +109,7 @@ public:
                                 if (fieldType == "SymAxis")
                                 {
                                     symAxisPoints.push_back(id);
+                                    std::next(nodes.begin(), id)->isSym = true;
                                 }
                             }
                             if (indexnum == 2)

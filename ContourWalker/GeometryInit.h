@@ -28,9 +28,12 @@ const enum lineDirectionn{ vertical, other };
 class Node
 {
 public:
-    unsigned toolType = symAxis;
+    unsigned toolType = NULL;
+    bool isSym = false;
+
     unsigned placeInContour = std::numeric_limits<unsigned>::max();
     unsigned id = NULL;
+
     double x = NULL;
     double z = NULL;
 
@@ -76,18 +79,60 @@ public:
 
 class Contour
 {
+private:
+    std::list<unsigned> contour = {};
+
 public:
-    std::list<Node*>::iterator beginNode;
-    std::list<Node*>::iterator endNode;
+    unsigned beginNode = std::numeric_limits<unsigned>::max();
+    unsigned endNode = std::numeric_limits<unsigned>::max();
 
     Contour() {};
 
 
-    Contour(std::list<Node*>::iterator beginNodeValue, std::list<Node*>::iterator endNodeValue) : 
-        beginNode(beginNodeValue), endNode(endNodeValue) {};
+    Contour(unsigned nodeValue) : beginNode(nodeValue)
+    {
+        contour.push_back(nodeValue);
+    };
 
-    Contour(std::list<Node*>::iterator nodeValue) : beginNode(nodeValue), endNode(nodeValue) {};
 
+    void push_back(unsigned nodeValue)
+    {
+        contour.push_back(nodeValue);
+        endNode = nodeValue;
+    };
+
+
+    void push_front(unsigned nodeValue)
+    {
+        contour.push_front(nodeValue);
+        if (endNode == std::numeric_limits<unsigned>::max())
+            endNode = beginNode;
+        beginNode = nodeValue;
+    };
+
+
+    std::list<Node*>::iterator begin(std::list<Node*>& cntr)
+    {
+        return std::next(cntr.begin(), beginNode);
+    };
+
+
+    std::list<Node*>::iterator end(std::list<Node*>& cntr)
+    {
+        return std::next(cntr.begin(), endNode);
+    };
+
+
+    std::list<unsigned>::iterator begin()
+    {
+        return contour.begin();
+    };
+
+
+    std::list<unsigned>::iterator end()
+    {
+        return contour.end();
+    };
 };
 
 
@@ -114,14 +159,14 @@ public:
     };
 
     //ѕостроение контуров пустых областей и нахождение их площадей - формула площади √аусса
-    void intersection()
+    void intersection(std::list<Node*>& cntrWP, std::list<Node*>& cntrTool)
     {
-        double sumSquare = 0.0;
+        double sumSquare = 0.0f;
         Node point1, point2;
 
-        point1 = **contourWP.beginNode;
+        point1 = **contourWP.begin(cntrWP);
 
-        for (auto elem = contourWP.beginNode; elem != std::next(contourWP.endNode); ++elem)
+        for (auto elem = contourWP.begin(cntrWP); elem != std::next(contourWP.end(cntrWP)); ++elem)
         {
             point2 = **elem;
 
@@ -130,7 +175,7 @@ public:
             point1 = point2;
         }
 
-        for (auto elem1 = contourTool.endNode; elem1 != std::next(contourTool.beginNode); ++elem1)
+        for (auto elem1 = contourTool.begin(cntrTool); elem1 != std::next(contourTool.end(cntrTool)); ++elem1)
         {
             point2 = **elem1;
 
@@ -139,7 +184,7 @@ public:
             point1 = point2;
         }
 
-        point2 = **contourWP.beginNode;
+        point2 = **contourWP.begin(cntrWP);
 
         sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
@@ -161,11 +206,11 @@ public:
     }
 
 private:
-    bool isContourIntersection(Contour &otherDetail) const
+    bool isContourIntersection(Contour& otherDetail) const
     {
-        if ((*contourTool.beginNode)->placeInContour < (*otherDetail.endNode)->placeInContour)
+        if (contourTool.beginNode > otherDetail.endNode)
             return false;
-        if ((*otherDetail.beginNode)->placeInContour < (*contourTool.endNode)->placeInContour)
+        if (otherDetail.beginNode > contourTool.endNode)
             return false;
         return true;
     };

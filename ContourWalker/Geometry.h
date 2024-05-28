@@ -153,128 +153,126 @@ public:
         unsigned detailTypeValue = otherDetail.detailTypeNum;
         bool StartSpaceContour = false;
         int spaceAreaCount = 0;
-        unsigned symAxisState = noneStateAxis;
 
         for (auto it = contour.begin(); it != contour.end(); ++it)
         {
+
             if (std::next(connect.begin(), (*it)->id)->first != detailTypeValue and
-                std::find(symAxisPoints.begin(), symAxisPoints.end(), (*it)->id) == symAxisPoints.end())
+                !(*it)->isSym)
             {
                 if (StartSpaceContour == false)
                 {
-                    ++spaceAreaCount;
-                    if (std::next(connect.begin(), (*std::next(it, -1))->id)->first == detailTypeValue)
+                    if (std::next(connect.begin(), (*std::prev(it))->id)->first == detailTypeValue)
                     {
                         spaceAreas.push_back(
                             SpaceArea(
                                 detailTypeNum,
                                 detailTypeValue,
-                                Contour(std::next(it, -1)),
-                                Contour(std::next(otherDetail.contour.begin(),
-                                    std::next(otherDetail.nodes.begin(),
-                                        (std::next(connect.begin(), (*std::prev(it))->id))->second.n2
-                                    )->placeInContour
-                                )
-                                )
-                            ));
-
-                        symAxisState = bothNodeebetweenFigures;
+                                Contour((*std::next(it, -1))->placeInContour),
+                                Contour(std::next(otherDetail.nodes.begin(),
+                                    (std::next(connect.begin(), (*std::prev(it))->id))->second.n2)->placeInContour)
+                                    ));
                     }
                     else
-                    {
-                        spaceAreas.push_back(
-                            SpaceArea(
-                                detailTypeNum,
-                                detailTypeValue,
-                                Contour(std::next(it, -1)),
-                                Contour(std::next(otherDetail.contour.begin(),
-                                    std::next(otherDetail.nodes.begin(),
-                                        *otherDetail.symAxisPoints.begin()
-                                    )->placeInContour
-                                )
-                                )
-                            ));
-
-                        symAxisState = beginNodeAxis;
-                    }
+                        if ((*std::prev(it))->isSym)
+                        {
+                            spaceAreas.push_back(
+                                SpaceArea(
+                                    detailTypeNum,
+                                    detailTypeValue,
+                                    Contour((*std::prev(it))->placeInContour),
+                                    Contour()
+                                        ));
+                        }
+                        else
+                            continue;
 
                     StartSpaceContour = true;
+                    ++spaceAreaCount;
                 }
                 else
                 {
-                    std::prev(spaceAreas.end())->contourWP.endNode = std::next(it, -1);
+                    std::prev(spaceAreas.end())->contourWP.push_back((*std::prev(it))->placeInContour);
                 }
             }
             if (std::next(connect.begin(), (*it)->id)->first == detailTypeValue or
-                std::find(symAxisPoints.begin(), symAxisPoints.end(), (*it)->id) != symAxisPoints.end())
+                (*it)->isSym)
             {
+
                 if (StartSpaceContour == true)
                 {
                     StartSpaceContour = false;
 
-                    (std::prev(spaceAreas.end()))->contourWP.endNode = it;
+                    (std::prev(spaceAreas.end()))->contourWP.push_back((*std::prev(it))->placeInContour);
+                    (std::prev(spaceAreas.end()))->contourWP.push_back((*it)->placeInContour);
 
                     if (std::next(connect.begin(), (*it)->id)->first == detailTypeValue)
                     {
-                        (std::prev(spaceAreas.end()))->contourTool.endNode = std::next(otherDetail.contour.begin(),
-                            std::next(otherDetail.nodes.begin(),
-                                (std::next(connect.begin(), (*it)->id))->second.n1
-                            )->placeInContour
-                        );
-
-                        if (symAxisState == beginNodeAxis)
+                        if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
                         {
-                            std::list<Node*>::iterator it1 = (std::prev(spaceAreas.end()))->contourTool.endNode;
+                            std::list<Node*>::iterator it2 = (std::prev(spaceAreas.end()))->contourTool.begin(otherDetail.contour);
+
+                            for (std::list<Node*>::iterator it1 = it2;
+                                it1 != std::next(otherDetail.contour.begin(),
+                                    std::next(otherDetail.nodes.begin(), (std::next(connect.begin(),
+                                        (*it)->id))->second.n1)->placeInContour); --it1)
+                            {
+                                (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
+                            }
+                        }
+
+                        else
+                        {
+                            std::list<Node*>::iterator it1 = std::next(otherDetail.contour.begin(),
+                                std::next(otherDetail.nodes.begin(), (std::next(connect.begin(),
+                                    (*it)->id))->second.n1)->placeInContour);
+
+                            (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
 
                             while (true)
                             {
-                                if (std::find(otherDetail.symAxisPoints.begin(), otherDetail.symAxisPoints.end(),
-                                    (*it1)->id) == otherDetail.symAxisPoints.end())
-                                    ++it1;
-                                else
-                                {
-                                    (std::prev(spaceAreas.end()))->contourTool.beginNode = it1;
+                                ++it1;
+                                (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
+                                if ((*it1)->isSym)
                                     break;
-                                }
+                                
                             }
                         }
                     }
                     else
                     {
-                        
-                        if (symAxisState == bothNodeebetweenFigures)
+                        if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
                         {
-                            std::list<Node*>::iterator it1 = (std::prev(spaceAreas.end()))->contourTool.beginNode;
+                            std::list<Node*>::iterator it1 = (std::prev(spaceAreas.end()))->contourTool.begin(otherDetail.contour);
+
+                            (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
 
                             while (true)
                             {
-                                if (std::find(otherDetail.symAxisPoints.begin(), otherDetail.symAxisPoints.end(),
-                                    (*it1)->id) == otherDetail.symAxisPoints.end())
-                                    --it1;
-                                else
-                                {
-                                    (std::prev(spaceAreas.end()))->contourTool.endNode = it1;
+                                --it1;
+                                (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
+                                if ((*it1)->isSym)
                                     break;
-                                }
                             }
                         }
-
-                        if (symAxisState == beginNodeAxis)
+                        else
                         {
                             spaceAreas.pop_back();
+                            --spaceAreaCount;
                         }
                     }
-                    symAxisState = noneStateAxis;
 
                 }
             }
         }     
-        
+
+
         std::list<SpaceArea>::iterator maxSquareIterator = std::prev(spaceAreas.end());
         double maxSquare = 0;
+
         for (std::list<SpaceArea>::iterator elem = std::next(spaceAreas.end(), -spaceAreaCount); elem != spaceAreas.end(); ++elem)
         {
-            elem->intersection();
+            elem->intersection(contour, otherDetail.contour);
 
             if (elem->spaceSquare > maxSquare)
             {

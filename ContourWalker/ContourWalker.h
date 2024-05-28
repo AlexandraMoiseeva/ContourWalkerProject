@@ -5,6 +5,7 @@
 #include <list>
 #include <sstream>
 #include <fstream>
+#include <filesystem>
 #include <iomanip>
 #include <string>
 
@@ -18,11 +19,13 @@ public:
     std::list< std::list<SpaceArea>> spaceAreas = {};
 private:
     std::stringstream ss;
+    std::string folder;
+
     std::list<ContourWalkerTool> toolFigures;
     std::list<ContourWalker> wpFigures;
 
     
-    void writeInOut(std::ofstream& fileOutValue, SpaceArea elem, bool isSym = false)
+    void writeInOut(std::ofstream& fileOutValue, SpaceArea elem, std::list<Node*>& cntrWP, std::list<Node*>& cntrTool, bool isSym = false)
     {
         fileOutValue << "Tool" + std::to_string((int)elem.detailToolId - (int)tool) + "; " 
             "Workpiece" + std::to_string((int)elem.detailWPId - (int)wp) + "; " 
@@ -32,15 +35,15 @@ private:
 
         fileOutValue << "Object type; node id;\n";
 
-        for (auto point = elem.contourWP.beginNode; point != std::next(elem.contourWP.endNode); ++point)
+        for (auto point = elem.contourWP.begin(); point != elem.contourWP.end(); ++point)
         {
             fileOutValue << "Workpiece" + std::to_string((int)elem.detailWPId - (int)wp) + "; "
-                + std::to_string((*point)->id) + (isSym ? ".Sym" : "") + ";\n";
+                + std::to_string((*std::next(cntrWP.begin(), *point))->id) + (isSym ? ".Sym" : "") + ";\n";
         }
-        for (auto point = elem.contourTool.endNode; point != std::next(elem.contourTool.beginNode); ++point)
+        for (auto point = elem.contourTool.begin(); point != elem.contourTool.end(); ++point)
         {
             fileOutValue << "Tool" + std::to_string((int)elem.detailToolId - (int)tool) + "; "
-                + std::to_string((*point)->id) + (isSym ? ".Sym" : "") + ";\n";
+                + std::to_string((*std::next(cntrTool.begin(), *point))->id) + (isSym ? ".Sym" : "") + ";\n";
         }
     }
 
@@ -49,21 +52,22 @@ public:
     CWM() {};
 
 
-    CWM(unsigned time, unsigned toolNumber, unsigned wpNumber)
+    CWM(std::string folderValue, unsigned time, unsigned toolNumber, unsigned wpNumber)
     {
         ss << std::setw(3) << std::setfill('0') << time;
+        folder = folderValue;
 
         if(toolNumber > 1)
             for (unsigned i = 1; i <= toolNumber; ++i)
-                toolFigures.push_back(ContourWalkerTool("../data(1)/" + ss.str() + "-t" + std::to_string(i) + ".csv2d", tool + i));
+                toolFigures.push_back(ContourWalkerTool("../" + folder + "/" + ss.str() + "-t" + std::to_string(i) + ".csv2d", tool + i));
         else
-            toolFigures.push_back(ContourWalkerTool("../data(1)/" + ss.str() + "-t" + ".csv2d", tool));
+            toolFigures.push_back(ContourWalkerTool("../" + folder + "/" + ss.str() + "-t" + ".csv2d", tool));
 
         if (wpNumber > 1)
             for (unsigned i = 1; i <= toolNumber; ++i)
-                wpFigures.push_back(ContourWalker("../data(1)/" + ss.str() + "-wp" + std::to_string(i) + ".csv2d", wp + i));
+                wpFigures.push_back(ContourWalker("../" + folder + "/" + ss.str() + "-wp" + std::to_string(i) + ".csv2d", wp + i));
         else
-            wpFigures.push_back(ContourWalker("../data(1)/" + ss.str() + "-wp" + ".csv2d", wp));
+            wpFigures.push_back(ContourWalker("../" + folder + "/" + ss.str() + "-wp" + ".csv2d", wp));
 
     };
 
@@ -85,30 +89,34 @@ public:
             spaceAreas.push_back(wpElem->spaceAreas);
         }
 
-        std::ofstream fileOut("../returnData/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
+        std::ofstream fileOut("../return" + folder + "/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
 
         for (std::list<SpaceArea> elemList : spaceAreas)
             for (SpaceArea elem : elemList)
             {
-                writeInOut(fileOut, elem);
+                std::list<Node*> cntrWP = std::next(wpFigures.begin(), elem.detailWPId - wp)->contour;
+                std::list<Node*> cntrTool = std::next(toolFigures.begin(), elem.detailToolId - tool - 1)->contour;
+
+                writeInOut(fileOut, elem, cntrWP, cntrTool);
             }
     }
 
 
-    void trackSpaceArea(CWM& otherCWM)
+    void trackSpaceArea(std::list< std::list<SpaceArea>>& lastSpaceAreas)
     {
-        /*
+        int maxId = 0;
+        
         for (int i = 0; i < spaceAreas.size(); ++i)
         {
             for (std::list<SpaceArea>::iterator elem = std::next(spaceAreas.begin(), i)->begin();
                 elem != std::next(spaceAreas.begin(), i)->end(); ++elem)
             {
-                int maxId = 0;
+                
 
-                if (spaceAreas.size() == otherCWM.spaceAreas.size())
+                if (spaceAreas.size() == lastSpaceAreas.size())
                 {
-                    for (std::list<SpaceArea>::iterator elem1 = std::next(otherCWM.spaceAreas.begin(), i)->begin();
-                        elem1 != std::next(otherCWM.spaceAreas.begin(), i)->end(); ++elem1)
+                    for (std::list<SpaceArea>::iterator elem1 = std::next(lastSpaceAreas.begin(), i)->begin();
+                        elem1 != std::next(lastSpaceAreas.begin(), i)->end(); ++elem1)
                     {
                         if (elem1->spaceAreaId > maxId)
                             maxId = elem1->spaceAreaId;
@@ -123,7 +131,6 @@ public:
 
             }
         }
-        */
     }
 
 
@@ -144,30 +151,32 @@ public:
         for (auto elemList : spaceAreas)
             for (auto elem: elemList)
             {
-                auto point0 = **elem.contourWP.beginNode;
+                std::list<Node*> cntrWP = std::next(wpFigures.begin(), elem.detailWPId - wp)->contour;
+                std::list<Node*> cntrTool = std::next(toolFigures.begin(), elem.detailToolId - tool - 1)->contour;
+                
+                auto point0 = **elem.contourWP.begin(cntrWP);
 
-                for (auto point = std::next(elem.contourWP.beginNode); point != elem.contourWP.endNode; ++point)
+                for (auto point = std::next(elem.contourWP.begin(cntrWP)); point != std::next(elem.contourWP.end(cntrWP)); ++point)
                 {
                     Drawer().drawLine(point0, **point, window);
 
                     point0 = **point;
                 }
 
-                if (((*elem.contourTool.beginNode)->placeInContour - (*elem.contourTool.endNode)->placeInContour) > 0)
+                if (((*elem.contourTool.begin(cntrTool))->placeInContour - (*elem.contourTool.end(cntrTool))->placeInContour) > 0)
                 {
-                    Drawer().drawLine(point0, **elem.contourTool.endNode, window);
+                    Drawer().drawLine(point0, **elem.contourTool.begin(cntrTool), window);
 
-                    point0 = **elem.contourTool.endNode;
+                    point0 = **elem.contourTool.begin(cntrTool);
 
-                    for (auto point = std::next(elem.contourTool.endNode); point != std::next(elem.contourTool.beginNode); ++point)
+                    for (auto point = std::next(elem.contourTool.begin(cntrTool)); point != std::next(elem.contourTool.end(cntrTool)); ++point)
                     {
                         Drawer().drawLine(point0, **point, window);
 
                         point0 = **point;
                     }
                 }
-
-                Drawer().drawLine(point0, **elem.contourWP.beginNode, window);
+                Drawer().drawLine(point0, **elem.contourWP.begin(cntrWP), window);
 
                 auto textPoint = Drawer().drawScale(point0);
                 text.setPosition(textPoint.first + 50, textPoint.second + 50);
