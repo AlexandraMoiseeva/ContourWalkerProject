@@ -3,8 +3,5 @@ Square: 4.01534117761872e-07;
 Object type; node id;
 Workpiece0; 29;
 Workpiece0; 30;
-Workpiece0; 31;
 Tool1; 6;
 Tool1; 7;
-Tool1; 8;
-Tool1; 8;

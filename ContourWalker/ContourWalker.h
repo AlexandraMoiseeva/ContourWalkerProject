@@ -150,33 +150,34 @@ public:
         for (auto elemList : spaceAreas)
             for (auto elem: elemList)
             {
+
                 std::list<Node*> cntrWP = std::next(wpFigures.begin(), elem.detailWPId - wp)->contour;
                 std::list<Node*> cntrTool = std::next(toolFigures.begin(), elem.detailToolId - tool - 1)->contour;
                 
-                auto point0 = **elem.contourWP.begin(cntrWP);
+                auto point0 = **std::next(cntrWP.begin(), *elem.contourWP.begin());
 
-                for (auto point = std::next(elem.contourWP.begin(cntrWP)); point != std::next(elem.contourWP.end(cntrWP)); ++point)
+                for (auto point = std::next(elem.contourWP.begin()); point != std::next(elem.contourWP.end()); ++point)
                 {
-                    Drawer().drawLine(point0, **point, window);
+                    Drawer().drawLine(point0, **std::next(cntrWP.begin(), *point), window);
 
-                    point0 = **point;
+                    point0 = **std::next(cntrWP.begin(), *point);
                 }
 
-                if (elem.contourTool.endNode != std::numeric_limits<unsigned>::max() and elem.contourTool.beginNode != std::numeric_limits<unsigned>::max())
-                    if (((*elem.contourTool.begin(cntrTool))->placeInContour - (*elem.contourTool.end(cntrTool))->placeInContour) > 0)
+                if (((*elem.contourTool.begin()) - (*elem.contourTool.end())) > 0)
+                {
+                    Drawer().drawLine(point0, **std::next(cntrTool.begin(), *elem.contourTool.begin()), window);
+
+                    point0 = **std::next(cntrTool.begin(), *elem.contourTool.begin());
+
+                    for (auto point = std::next(elem.contourTool.begin()); point != std::next(elem.contourTool.end()); ++point)
                     {
-                        Drawer().drawLine(point0, **elem.contourTool.begin(cntrTool), window);
+                        Drawer().drawLine(point0, **std::next(cntrTool.begin(), *point), window);
 
-                        point0 = **elem.contourTool.begin(cntrTool);
-
-                        for (auto point = std::next(elem.contourTool.begin(cntrTool)); point != std::next(elem.contourTool.end(cntrTool)); ++point)
-                        {
-                            Drawer().drawLine(point0, **point, window);
-
-                            point0 = **point;
-                        }
+                        point0 = **std::next(cntrTool.begin(), *point);
                     }
-                Drawer().drawLine(point0, **elem.contourWP.begin(cntrWP), window);
+                }
+
+                Drawer().drawLine(point0, **std::next(cntrWP.begin(), *elem.contourWP.begin()), window);
 
                 auto textPoint = Drawer().drawScale(point0);
                 text.setPosition(textPoint.first + 50, textPoint.second + 50);

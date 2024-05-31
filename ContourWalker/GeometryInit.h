@@ -110,19 +110,6 @@ public:
         beginNode = nodeValue;
     };
 
-
-    std::list<Node*>::iterator begin(std::list<Node*>& cntr)
-    {
-        return std::next(cntr.begin(), beginNode);
-    };
-
-
-    std::list<Node*>::iterator end(std::list<Node*>& cntr)
-    {
-        return std::next(cntr.begin(), endNode);
-    };
-
-
     std::list<unsigned>::iterator begin()
     {
         return contour.begin();
@@ -131,7 +118,7 @@ public:
 
     std::list<unsigned>::iterator end()
     {
-        return contour.end();
+        return std::prev(contour.end());
     };
 };
 
@@ -144,7 +131,7 @@ public:
 
     unsigned spaceAreaId = std::numeric_limits<unsigned>::max();
 
-    double spaceSquare = 0;
+    double spaceSquare = -1;
 
     Contour contourTool;
     Contour contourWP;
@@ -164,27 +151,27 @@ public:
         double sumSquare = 0.0f;
         Node point1, point2;
 
-        point1 = **contourWP.begin(cntrWP);
+        point1 = **std::next(cntrWP.begin(), *contourWP.begin());
 
-        for (auto elem = contourWP.begin(cntrWP); elem != std::next(contourWP.end(cntrWP)); ++elem)
+        for (auto elem = contourWP.begin(); elem != std::next(contourWP.end()); ++elem)
         {
-            point2 = **elem;
+            point2 = **std::next(cntrWP.begin(), *elem);
 
             sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
             point1 = point2;
         }
 
-        for (auto elem1 = contourTool.begin(cntrTool); elem1 != std::next(contourTool.end(cntrTool)); ++elem1)
+        for (auto elem1 = contourTool.begin(); elem1 != std::next(contourTool.end()); ++elem1)
         {
-            point2 = **elem1;
+            point2 = **std::next(cntrTool.begin(), *elem1);
 
             sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
             point1 = point2;
         }
 
-        point2 = **contourWP.begin(cntrWP);
+        point2 = **std::next(cntrWP.begin(), *contourWP.begin());
 
         sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 

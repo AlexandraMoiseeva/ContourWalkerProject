@@ -214,7 +214,7 @@ public:
                     {
                         if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
                         {                            
-                            std::list<Node*>::iterator it2 = (std::prev(spaceAreas.end()))->contourTool.begin(otherDetail.contour);
+                            std::list<Node*>::iterator it2 = std::next(otherDetail.contour.begin(), *(std::prev(spaceAreas.end()))->contourTool.begin());
                             std::list<Node*>::iterator it3 = std::next(otherDetail.contour.begin(),
                                 std::next(otherDetail.nodes.begin(), (std::next(connect.begin(),
                                     (*it)->id))->second.n1)->placeInContour);
@@ -252,7 +252,7 @@ public:
                     {
                         if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
                         {
-                            std::list<Node*>::iterator it1 = (std::prev(spaceAreas.end()))->contourTool.begin(otherDetail.contour);
+                            std::list<Node*>::iterator it1 = std::next(otherDetail.contour.begin(), *(std::prev(spaceAreas.end()))->contourTool.begin());
 
                             (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
 
@@ -283,9 +283,6 @@ public:
 
         for (std::list<SpaceArea>::iterator elem = std::next(spaceAreas.end(), -spaceAreaCount); elem != spaceAreas.end(); ++elem)
         {
-            if ((std::prev(spaceAreas.end())->contourTool.beginNode == std::numeric_limits<unsigned>::max()) or
-                (std::prev(spaceAreas.end())->contourTool.endNode == std::numeric_limits<unsigned>::max()))
-                continue;
             elem->intersection(contour, otherDetail.contour);
             
             if (elem->spaceSquare > maxSquare)
