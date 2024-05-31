@@ -1,4 +1,4 @@
-Tool2; Workpiece0; Square-1;
+Tool2; Workpiece0; Square1;
 Square: 0.000565832509030098;
 Object type; node id;
 Workpiece0; 3;

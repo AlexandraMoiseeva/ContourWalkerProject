@@ -29,7 +29,7 @@ private:
     {
         fileOutValue << "Tool" + std::to_string((int)elem.detailToolId - (int)tool) + "; " 
             "Workpiece" + std::to_string((int)elem.detailWPId - (int)wp) + "; " 
-            + "Square" + std::to_string((int)elem.spaceAreaId) + (isSym ? ".Sym" : "") + ";\n";
+            + "Square" + std::to_string(elem.spaceAreaId) + (isSym ? ".Sym" : "") + ";\n";
 
         fileOutValue << "Square: " << std::setprecision(15) << elem.spaceSquare << ";\n";
 
@@ -89,6 +89,10 @@ public:
             spaceAreas.push_back(wpElem->spaceAreas);
         }
 
+    }
+
+    void write()
+    {
         std::ofstream fileOut("../return" + folder + "/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
 
         for (std::list<SpaceArea> elemList : spaceAreas)

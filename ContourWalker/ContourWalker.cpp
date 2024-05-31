@@ -13,7 +13,7 @@ int main()
     
     unsigned time = 1;
 
-    std::string folder = "data(9)";
+    std::string folder = "data(6)";
 
     if (std::filesystem::exists("../return" + folder))
     {
@@ -74,6 +74,8 @@ int main()
         
         cwmObject.trackSpaceArea(lastSpaceAreas);
         lastSpaceAreas = cwmObject.spaceAreas;
+
+        cwmObject.write();
 
         cwmObject.drawAll(window);
 
