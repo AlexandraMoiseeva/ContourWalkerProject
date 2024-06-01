@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 
 #include "ContourWalker.h" 
+#include "Drawer.h"
+#include "Reader.h"
 
 int main()
 {
@@ -13,7 +15,7 @@ int main()
     
     unsigned time = 1;
 
-    std::string folder = "data(6)";
+    std::string folder = "data(9)";
 
     if (std::filesystem::exists("../return" + folder))
     {
@@ -23,6 +25,9 @@ int main()
     std::filesystem::create_directory("../return" + folder);
 
     std::list< std::list<SpaceArea>> lastSpaceAreas = {};
+
+    unsigned toolNumber = 2;
+    unsigned wpNumber = 1;
 
     while (window.isOpen())
     {
@@ -68,22 +73,53 @@ int main()
 
         window.clear();
 
-        CWM cwmObject(folder, time, 2, 1);
+        std::stringstream ss;
+
+        std::list<ContourWalkerTool> toolFigures = {};
+        std::list<ContourWalker> wpFigures = {};
+
+        ss << std::setw(3) << std::setfill('0') << time;
+
+        if (toolNumber > 1)
+            for (unsigned i = 1; i <= toolNumber; ++i)
+            {
+                ReaderWriter rw("../" + folder + "/" + ss.str() + "-t" + std::to_string(i) + ".csv2d", tool + i);
+                toolFigures.push_back(ContourWalkerTool(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, tool + i));
+            }
+        else
+        {
+            ReaderWriter rw("../" + folder + "/" + ss.str() + "-t" + ".csv2d", tool);
+            toolFigures.push_back(ContourWalkerTool(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, tool));
+        }
+
+        if (wpNumber > 1)
+            for (unsigned i = 1; i <= toolNumber; ++i)
+            {
+                ReaderWriter rw("../" + folder + "/" + ss.str() + "-wp" + std::to_string(i) + ".csv2d", wp +  i);
+                wpFigures.push_back(ContourWalker(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, wp + i));
+            }
+        else
+        {
+            ReaderWriter rw("../" + folder + "/" + ss.str() + "-wp" + ".csv2d", wp);
+            wpFigures.push_back(ContourWalker(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, wp));
+        }
+
+        CWM cwmObject(toolFigures, wpFigures);
 
         cwmObject.findSpace();
         
         cwmObject.trackSpaceArea(lastSpaceAreas);
         lastSpaceAreas = cwmObject.spaceAreas;
 
-        cwmObject.write();
+        ReaderWriter().write(folder, ss, cwmObject.toolFigures, cwmObject.wpFigures, cwmObject.spaceAreas);
 
-        cwmObject.drawAll(window);
+        Drawer().drawAll(window, cwmObject.toolFigures, cwmObject.wpFigures, cwmObject.spaceAreas);
 
         sf::sleep(sf::milliseconds(300*1));
 
         window.display();
 
-        if (time++ == 90)
+        if (time++ == 113)
             time = 1;
     }
 

@@ -2,96 +2,44 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-#include <sstream>
-#include <fstream>
+#include <vector>
 #include <string>
 
-#include "Reader.h"
 #include "GeometryInit.h"
-#include "Drawer.h"
-
-#include <SFML/Graphics.hpp>
 
 const enum symAxisStateValue { noneStateAxis, beginNodeAxis, bothNodeebetweenFigures };
 
-/*
-* Класс, отвечающий за всю работу с одной из фигур Tool
-* Хранит:
-*   detailTypeNum - тип фигуры
-*   nodes - вектор, хранящий узлы в порядке считыввания
-*   contour - вектор, хранящий указатели на узлы в порядке, образующем контур
-*   symAxisPoints - хранит номера узлом, лежащих на оси симметрии
-*   LineSym - ось симметрии, структуры LineSymStruct
-*   connect - хранит словарь, размера количества узлов, где в соответсвие номеру узла
-              ставится пара - номера узлов отрезка, которого он касается.
-              В случае Tool1 и Tool2 - касание с wp, в случае с wp - касание с Tool1.
-              Если узел не касается, то в соответсвие ставится пара (-1, -1)
-*   connect1 - хранит словарь, размера количества узлов, где в соответсвие номеру узла
-              ставится пара - номера узлов отрезка, которого он касается.
-              В случае Tool1 и Tool2 - этот вектор пуст, в случае с wp - касание с Tool2.
-              Если узел не касается, то в соответсвие ставится пара (-1, -1)
-*/
+
 class ContourWalkerTool
 {
 public:
     unsigned detailTypeNum = tool;
-    std::list< Node > nodes = {};
-    std::list< Node* > contour = {};
+    std::vector<Node> nodes = {};
+    std::vector<Node*> contour = {};
 
-    std::list< unsigned > symAxisPoints = {};
-
-    std::list< std::pair<unsigned, Segment> > connect = {};
+    std::list<std::pair<unsigned, Segment>> connect = {};
 
     LineSymStruct lineSym;
 
     ContourWalkerTool() {};
 
 
-    ContourWalkerTool(std::string filePathValue, unsigned detailTypeValue = tool)
+    ContourWalkerTool(std::vector<Node>& nodesValue, std::list<unsigned>& contourValue, std::list<unsigned>& symAxisPointsValue, 
+        std::list<std::pair<unsigned, Segment>>& connectValue, unsigned detailTypeValue = tool)
     {
-        Reader reader(filePathValue, detailTypeValue);
-
         detailTypeNum = detailTypeValue;
 
-        nodes = reader.nodes;
-        for (auto elem : reader.contour)
+        nodes = nodesValue;
+        for (auto elem : contourValue)
             contour.push_back(&*std::next(nodes.begin(), elem));
 
-        symAxisPoints = reader.symAxisPoints;
+        symAxisInizialisation(symAxisPointsValue);
 
-        connect = reader.connect;
+        connect = connectValue;
     };
 
-    //Отрисовка контура
-    void draw(sf::RenderWindow& window)
-    {
-        for (auto it = contour.begin(); it != contour.end(); ++it)
-        {
-            Node nodepoint1, nodepoint2;
 
-            if (it == contour.begin())
-            {
-                nodepoint1 = **std::next(contour.end(), -1);
-                nodepoint2 = **contour.begin();
-            }
-            else
-            {
-                nodepoint1 = **it;
-                nodepoint2 = **std::next(it, -1);
-            }
-
-            Drawer().drawLine(nodepoint1, nodepoint2, window, 100);
-
-            if (symAxisPoints.size() == 0)
-                continue;
-
-            Drawer().drawLine(lineSym.getSymNode(nodepoint1), lineSym.getSymNode(nodepoint2), window, 100);
-        }
-        return;
-    };
-
-    //Определение оси симметрии
-    void symAxisInizialisation()
+    void symAxisInizialisation(std::list<unsigned>& symAxisPoints)
     {
         if (symAxisPoints.size() == 0)
             return;
@@ -113,29 +61,7 @@ public:
 
 };
 
-/*
-* Класс, отвечающий за всю работу с одной из фигур Tool
-* Хранит:
-*   detailTypeNum - тип фигуры
-*   nodes - вектор, хранящий узлы в порядке считыввания
-*   contour - вектор, хранящий указатели на узлы в порядке, образующем контур
-*   symAxisPoints - хранит номера узлом, лежащих на оси симметрии
-*   LineSym - ось симметрии, структуры LineSymStruct
-*   connect - хранит словарь, размера количества узлов, где в соответсвие номеру узла
-              ставится пара - номера узлов отрезка, которого он касается.
-              Если узел не касается, то в соответсвие ставится пара (-1, -1)
-*   connect1 - хранит словарь, размера количества узлов, где в соответсвие номеру узла
-              ставится пара - номера узлов отрезка, которого он касается.
-              Если узел не касается, то в соответсвие ставится пара (-1, -1)
-*   connectSpace - хранит вектор пустых областей
-                   - элемент - пара:
-                                  1) Список вершин, рассматриваемой фигуры
-                                  2) Пара - отрезок, которого касается первый и последний узел
-*   connectSpace - хранит вектор пустых областей
-                   - элемент - пара:
-                                  1) Список вершин, рассматриваемой фигуры
-                                  2) Пара - отрезок, которого касается первый и последний узел
-*/
+
 class ContourWalker : public ContourWalkerTool
 {
 public:
@@ -145,9 +71,11 @@ public:
     ContourWalker() : ContourWalkerTool() {}
 
 
-    ContourWalker(std::string filePathValue, int detailTypeValue = tool) : ContourWalkerTool(filePathValue, detailTypeValue) {};
+    ContourWalker(std::vector<Node>& nodesValue, std::list<unsigned>& contourValue, std::list<unsigned>& symAxisPointsValue,
+        std::list<std::pair<unsigned, Segment>>& connectValue, unsigned detailTypeValue = tool) :
+        ContourWalkerTool(nodesValue, contourValue, symAxisPointsValue, connectValue, detailTypeValue) {};
 
-    //Определние соответсвующих connectSpace - нахождение контуров из некасающихся узлов и соответсвующих отрезков
+
     void intersectionSpace(ContourWalkerTool& otherDetail)
     {
         unsigned detailTypeValue = otherDetail.detailTypeNum;
@@ -162,7 +90,6 @@ public:
             {
                 if (StartSpaceContour == false)
                 {
-
                     if (std::next(connect.begin(), (*std::prev(it))->id)->first == detailTypeValue)
                     {
                         spaceAreas.push_back(
@@ -170,8 +97,8 @@ public:
                                 detailTypeNum,
                                 detailTypeValue,
                                 Contour((*std::next(it, -1))->placeInContour),
-                                Contour(std::next(otherDetail.nodes.begin(),
-                                    (std::next(connect.begin(), (*std::prev(it))->id))->second.n2)->placeInContour)
+                                Contour(otherDetail.nodes[std::next(connect.begin(), 
+                                    (*std::prev(it))->id)->second.n2].placeInContour)
                                     ));
                     }
                     else
@@ -199,10 +126,8 @@ public:
                     std::prev(spaceAreas.end())->contourWP.push_back((*std::prev(it))->placeInContour);
                 }
             }
-            if (std::next(connect.begin(), (*it)->id)->first == detailTypeValue or
-                (*it)->isSym)
+            if (std::next(connect.begin(), (*it)->id)->first == detailTypeValue or (*it)->isSym)
             {
-
                 if (StartSpaceContour == true)
                 {
                     StartSpaceContour = false;
@@ -214,37 +139,26 @@ public:
                     {
                         if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
                         {                            
-                            std::list<Node*>::iterator it2 = std::next(otherDetail.contour.begin(), *(std::prev(spaceAreas.end()))->contourTool.begin());
-                            std::list<Node*>::iterator it3 = std::next(otherDetail.contour.begin(),
-                                std::next(otherDetail.nodes.begin(), (std::next(connect.begin(),
-                                    (*it)->id))->second.n1)->placeInContour);
+                            int it2 = --*(std::prev(spaceAreas.end()))->contourTool.begin();
+                            int it3 = --otherDetail.nodes[std::next(connect.begin(), (*it)->id)->second.n1].placeInContour;
 
-                            if((*it2)->placeInContour < (*it3)->placeInContour)
-                                for (std::list<Node*>::iterator it1 = std::prev(it2); it1 != it3; ++it1)
-                                {
-                                    (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
-                                }
-                            else
-                                for (std::list<Node*>::iterator it1 = std::prev(it2); it1 != it3; --it1)
-                                {
-                                    (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
-                                }
+                            for (int it1 = it2; it1 != it3 and it1 != it3 - otherDetail.contour.size(); --it1)
+                            {
+                                (std::prev(spaceAreas.end()))->contourTool.push_front(it1 < 0 ? otherDetail.contour.size() + it1 : it1);
+                            }
                         }
                         else
                         {
-                            std::list<Node*>::iterator it1 = std::next(otherDetail.contour.begin(),
-                                std::next(otherDetail.nodes.begin(), (std::next(connect.begin(),
-                                    (*it)->id))->second.n1)->placeInContour);
+                            auto it1 = std::next(connect.begin(), (*it)->id)->second.n1;
 
-                            (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
+                            (std::prev(spaceAreas.end()))->contourTool.push_front(it1);
 
-                            while (it1 != otherDetail.contour.end())
+                            while (it1 != otherDetail.contour.size())
                             {
                                 ++it1;
-                                (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
-                                if ((*it1)->isSym)
+                                (std::prev(spaceAreas.end()))->contourTool.push_back(it1);
+                                if ((otherDetail.contour[it1])->isSym)
                                     break;
-                                
                             }
                         }
                     }
@@ -252,18 +166,17 @@ public:
                     {
                         if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
                         {
-                            std::list<Node*>::iterator it1 = std::next(otherDetail.contour.begin(), *(std::prev(spaceAreas.end()))->contourTool.begin());
+                            auto it1 = *(std::prev(spaceAreas.end()))->contourTool.begin();
 
-                            (std::prev(spaceAreas.end()))->contourTool.push_back((*it1)->placeInContour);
+                            (std::prev(spaceAreas.end()))->contourTool.push_back(it1);
 
-                            while (it1 != otherDetail.contour.begin())
+                            while (it1 != 0)
                             {
                                 --it1;
-                                (std::prev(spaceAreas.end()))->contourTool.push_front((*it1)->placeInContour);
-                                if ((*it1)->isSym)
+                                (std::prev(spaceAreas.end()))->contourTool.push_front(it1);
+                                if ((otherDetail.contour[it1])->isSym)
                                     break;
                             }
-
                         }
                         else
                         {
@@ -271,13 +184,29 @@ public:
                             --spaceAreaCount;
                         }
                     }
-
                 }
             }
         }
 
         if (spaceAreaCount == 0)
             return;
+
+        if (dopusk != 0)
+        {
+            for (auto it = std::next(contour.begin()); it != std::next(contour.begin()) + dopusk; ++it)
+            {
+                std::prev(spaceAreas.end())->contourWP.push_back((*it)->placeInContour);
+            }
+
+            int it2 = *(std::prev(spaceAreas.end()))->contourTool.begin();
+            int it3 = otherDetail.nodes[std::next(connect.begin(), (*(std::next(contour.begin()) + dopusk))->id)->second.n1].placeInContour;
+
+            for (int it1 = it2; it1 != it3 and it1 != it3 - otherDetail.contour.size(); --it1)
+            {
+                (std::prev(spaceAreas.end()))->contourTool.push_front(it1 < 0 ? otherDetail.contour.size() + it1 : it1);
+            }
+
+        }
 
         std::list<SpaceArea>::iterator maxSquareIterator = std::prev(spaceAreas.end());
         double maxSquare = 0;
@@ -293,10 +222,8 @@ public:
             }
         }
 
-        spaceAreas.erase(maxSquareIterator);
-        
+        spaceAreas.erase(maxSquareIterator); 
     }
-
 };
 
 #endif

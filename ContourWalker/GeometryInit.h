@@ -11,20 +11,12 @@
 #include <iostream>
 
 
-//Перечисление типов объектов на основе тех, что в #contacts
 const enum DetailEnum { symAxis, tool, wp };
 
-//Типы прямых для оси симметрии
+
 const enum lineDirectionn{ vertical, other };
 
 
-/*
-* Класс для определения узла
-* Хранит:
-*   placeInContour - место в векторе, определяющем контур
-*   id - место в векторе, хранящем все вершины
-*   x, z - соответсвующие координаты
-*/
 class Node
 {
 public:
@@ -55,11 +47,7 @@ public:
     };
 };
 
-/*
-* Класс для определения отрезка
-* Хранит:
-*   *n1, *n2 - указатели на узлы, характеризующие отрезок
-*/
+
 class Segment
 {
 public:
@@ -131,7 +119,7 @@ public:
 
     unsigned spaceAreaId = std::numeric_limits<unsigned>::max();
 
-    double spaceSquare = -1;
+    double spaceSquare = NULL;
 
     Contour contourTool;
     Contour contourWP;
@@ -145,8 +133,7 @@ public:
         contourWP = contourWPValue;
     };
 
-    //Построение контуров пустых областей и нахождение их площадей - формула площади Гаусса
-    void intersection(std::list<Node*>& cntrWP, std::list<Node*>& cntrTool)
+    void intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool)
     {
         double sumSquare = 0.0f;
         Node point1, point2;
@@ -195,29 +182,24 @@ public:
 private:
     bool isContourIntersection(Contour& otherDetail) const
     {
-        if (contourTool.beginNode > otherDetail.endNode)
+
+        if (contourTool.beginNode > otherDetail.endNode and contourTool.endNode > contourTool.beginNode)
             return false;
-        if (otherDetail.beginNode > contourTool.endNode)
+        if (otherDetail.beginNode > contourTool.endNode and otherDetail.endNode > otherDetail.beginNode)
             return false;
         return true;
     };
 };
 
-/*
-* Структура для определения оси симметрии
-* Хранит:
-*   a, b - переменные характеризующие прямую
-*   тип прямой - вертикальная прямая - x = a
-*              - любая другая прямая - y = a * x + b
-*/
+
 struct LineSymStruct
 {
 private:
-public:
     unsigned linetype = other;
+public:
 
-    double a = NULL;
-    double b = NULL;
+    double a = std::numeric_limits<unsigned>::max();
+    double b = std::numeric_limits<unsigned>::max();
 
 
     LineSymStruct() {};
@@ -225,7 +207,7 @@ public:
     //Определение идет с помощью МНК по полученым значения
     LineSymStruct(double xzSum, double xSum, double zSum, double x2Sum, double n)
     {
-        if (abs(n * x2Sum - xSum * xSum) < 1e-5)
+        if (abs(n * x2Sum - xSum * xSum) < 1e-3)
         {
             a = xSum / n;
             linetype = vertical;
@@ -240,14 +222,15 @@ public:
     //Возвращает узел симметричный n
     Node getSymNode(Node n)
     {
-        return Node(NULL, -n.x, n.z);
+        if (linetype == vertical)
+            return Node(-n.x, n.z);
         
         if (abs(a) < 1e-5)
-            return Node(NULL, n.x, 2 * b - n.z);
+            return Node(n.x, 2 * b - n.z);
 
         double x0 = (n.z + (1.0f / a) * n.x - b) / (a + (1.0f / a));
         double z0 = a * x0 + b;
-        return (Node(NULL, 2 * x0 - n.x, 2 * z0 - n.z));
+        return (Node(2 * x0 - n.x, 2 * z0 - n.z));
     }
 
 };

@@ -7,7 +7,6 @@ Workpiece0; 5;
 Workpiece0; 6;
 Workpiece0; 7;
 Workpiece0; 8;
-Tool2; 62;
 Tool2; 63;
 Tool2; 64;
 Tool2; 65;
