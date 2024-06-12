@@ -13,27 +13,57 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Файлы заголовков\DrawerReader">
+      <UniqueIdentifier>{86213c12-efb8-41bd-9803-25a42590de89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\DrawerReader">
+      <UniqueIdentifier>{f8eb8023-b646-4517-827d-d7c403f956d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ContourWalker.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="GeometryInit.h">
       <Filter>Файлы заголовков</Filter>
+    </ClCompile>
+    <ClCompile Include="ContourWalkerDRW.cpp">
+      <Filter>Файлы ресурсов\DrawerReader</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawer.cpp">
+      <Filter>Файлы ресурсов\DrawerReader</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Файлы ресурсов</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryInit.cpp">
+      <Filter>Файлы ресурсов</Filter>
+    </ClCompile>
+    <ClCompile Include="Reader.cpp">
+      <Filter>Файлы ресурсов\DrawerReader</Filter>
+    </ClCompile>
+    <ClCompile Include="Writer.cpp">
+      <Filter>Файлы ресурсов\DrawerReader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContourWalker.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Reader.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Drawer.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\DrawerReader</Filter>
+    </ClInclude>
+    <ClInclude Include="Reader.h">
+      <Filter>Файлы заголовков\DrawerReader</Filter>
+    </ClInclude>
+    <ClInclude Include="Writer.h">
+      <Filter>Файлы заголовков\DrawerReader</Filter>
+    </ClInclude>
+    <ClInclude Include="ContourWalkerDRW.h">
+      <Filter>Файлы заголовков\DrawerReader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

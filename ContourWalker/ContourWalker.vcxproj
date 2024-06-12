@@ -131,14 +131,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ContourWalker.cpp" />
+    <ClCompile Include="ContourWalkerDRW.cpp" />
+    <ClCompile Include="Drawer.cpp" />
+    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="GeometryInit.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="GeometryInit.h" />
+    <ClCompile Include="Reader.cpp" />
+    <ClCompile Include="Writer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContourWalker.h" />
+    <ClInclude Include="ContourWalkerDRW.h" />
     <ClInclude Include="Drawer.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Reader.h" />
+    <ClInclude Include="Writer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
