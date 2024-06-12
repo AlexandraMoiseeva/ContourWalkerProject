@@ -67,7 +67,7 @@ project.fragment.lock.json
 artifacts/
 
 # result folder
-return*/
+return*
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
