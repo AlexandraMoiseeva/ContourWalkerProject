@@ -97,7 +97,7 @@ void Drawer::drawSpace(sf::RenderWindow& window, CWMDrawerReader& cwm)
 
             auto point0 = **std::next(cntrWP.begin(), *elem.contourWP.begin());
 
-            for (auto&& point = std::next(elem.contourWP.begin()); point != std::next(elem.contourWP.end()); ++point)
+            for (auto&& point = std::next(elem.contourWP.begin()); point != elem.contourWP.end(); ++point)
             {
                 Drawer().drawLine(point0, **std::next(cntrWP.begin(), *point), window);
 
@@ -108,7 +108,7 @@ void Drawer::drawSpace(sf::RenderWindow& window, CWMDrawerReader& cwm)
 
             point0 = **std::next(cntrTool.begin(), *elem.contourTool.begin());
 
-            for (auto&& point = std::next(elem.contourTool.begin()); point != std::next(elem.contourTool.end()); ++point)
+            for (auto&& point = std::next(elem.contourTool.begin()); point != elem.contourTool.end(); ++point)
             {
                 Drawer().drawLine(point0, **std::next(cntrTool.begin(), *point), window);
 

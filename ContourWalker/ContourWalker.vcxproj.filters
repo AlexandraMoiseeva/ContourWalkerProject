@@ -45,6 +45,9 @@
     <ClCompile Include="Writer.cpp">
       <Filter>Файлы ресурсов\DrawerReader</Filter>
     </ClCompile>
+    <ClCompile Include="ContourWalker.cpp">
+      <Filter>Файлы ресурсов</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContourWalker.h">
@@ -65,5 +68,8 @@
     <ClInclude Include="ContourWalkerDRW.h">
       <Filter>Файлы заголовков\DrawerReader</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

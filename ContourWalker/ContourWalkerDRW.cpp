@@ -15,12 +15,12 @@ CWMDrawerReader::CWMDrawerReader(std::string folder, std::stringstream& ss, unsi
         for (unsigned i = 1; i <= toolNumber; ++i)
         {
             Reader rw("../" + folder + "/" + ss.str() + "-t" + std::to_string(i) + ".csv2d", i);
-            toolFigures.push_back(ContourWalkerTool(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, i));
+            toolFigures.emplace_back(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, i);
         }
     else
     {
         Reader rw("../" + folder + "/" + ss.str() + "-t" + ".csv2d", 0);
-        toolFigures.push_back(ContourWalkerTool(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, 0));
+        toolFigures.emplace_back(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, 0);
     }
 
 
@@ -28,12 +28,12 @@ CWMDrawerReader::CWMDrawerReader(std::string folder, std::stringstream& ss, unsi
         for (unsigned i = 1; i <= wpNumber; ++i)
         {
             Reader rw("../" + folder + "/" + ss.str() + "-wp" + std::to_string(i) + ".csv2d", i);
-            wpFigures.push_back(ContourWalker(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, i));
+            wpFigures.emplace_back(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, i);
         }
     else
     {
         Reader rw("../" + folder + "/" + ss.str() + "-wp" + ".csv2d", 0);
-        wpFigures.push_back(ContourWalker(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, 0));
+        wpFigures.emplace_back(rw.nodes, rw.contour, rw.symAxisPoints, rw.connect, 0);
     }
 };
 

@@ -1,35 +1,22 @@
 #include "GeometryInit.h"
 
 
-Node::Node() {};
+Node::Node() = default;
 
 
-Node::Node(double xValue, double zValue)
-{
-    x = xValue;
-    z = zValue;
-};
+Node::Node(double xValue, double zValue) : x(xValue), z(zValue) {};
 
 
-Node::Node(int idValue, double xValue, double zValue)
-{
-    id = idValue;
-    x = xValue;
-    z = zValue;
-};
+Node::Node(int idValue, double xValue, double zValue) : id(idValue), x(xValue), z(zValue) {};
 
 
-Segment::Segment() {};
+Segment::Segment() = default;
 
 
-Segment::Segment(unsigned n1Value, unsigned n2Value)
-{
-    n1 = n1Value;
-    n2 = n2Value;
-};
+Segment::Segment(unsigned n1Value, unsigned n2Value) : n1(n1Value), n2(n2Value) {};
 
 
-Contour::Contour() {};
+Contour::Contour() = default;
 
 
 Contour::Contour(unsigned nodeValue) : beginNode(nodeValue)
@@ -62,42 +49,37 @@ std::list<unsigned>::iterator Contour::begin()
 
 std::list<unsigned>::iterator Contour::end()
 {
-    return std::prev(contour.end());
+    return contour.end();
 };
 
 
-SpaceArea::SpaceArea() {};
+SpaceArea::SpaceArea() = default;
 
 
-SpaceArea::SpaceArea(unsigned detailWPIdValue, unsigned detailToolIdValue, Contour contourWPValue, Contour contourToolValue)
-{
-    detailToolId = detailToolIdValue;
-    detailWPId = detailWPIdValue;
-
-    contourTool = contourToolValue;
-    contourWP = contourWPValue;
-};
+SpaceArea::SpaceArea(unsigned detailWPIdValue, unsigned detailToolIdValue, Contour contourWPValue, Contour contourToolValue) :
+    detailToolId(detailToolIdValue), detailWPId(detailWPIdValue), contourTool(contourToolValue), contourWP(contourWPValue) {};
 
 
 void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool)
 {
     double sumSquare = 0.0f;
-    Node point1, point2;
+    Node point1;
+    Node point2;
 
     point1 = **std::next(cntrWP.begin(), *contourWP.begin());
 
-    for (auto elem = contourWP.begin(); elem != std::next(contourWP.end()); ++elem)
+    for (auto const& elem : contourWP)
     {
-        point2 = **std::next(cntrWP.begin(), *elem);
+        point2 = *cntrWP[elem];
 
         sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
         point1 = point2;
     }
 
-    for (auto elem1 = contourTool.begin(); elem1 != std::next(contourTool.end()); ++elem1)
+    for (auto const& elem1 : contourTool)
     {
-        point2 = **std::next(cntrTool.begin(), *elem1);
+        point2 = *cntrTool[elem1];
 
         sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
 
@@ -114,7 +96,7 @@ void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cnt
 
 bool SpaceArea::colocationSpaceArea(SpaceArea& lastSpaceArea)
 {
-    if (lastSpaceArea.detailToolId != detailToolId or lastSpaceArea.detailWPId != detailWPId)
+    if (lastSpaceArea.detailToolId != detailToolId || lastSpaceArea.detailWPId != detailWPId)
         return false;
 
     if (isContourIntersection(lastSpaceArea.contourTool))
@@ -130,16 +112,16 @@ bool SpaceArea::colocationSpaceArea(SpaceArea& lastSpaceArea)
 bool SpaceArea::isContourIntersection(Contour& otherDetail) const
 {
 
-    if (contourTool.beginNode > otherDetail.endNode and contourTool.endNode > contourTool.beginNode)
+    if (contourTool.beginNode > otherDetail.endNode && contourTool.endNode > contourTool.beginNode)
         return false;
-    if (otherDetail.beginNode > contourTool.endNode and otherDetail.endNode > otherDetail.beginNode)
+    if (otherDetail.beginNode > contourTool.endNode && otherDetail.endNode > otherDetail.beginNode)
         return false;
     return true;
 };
 
 
 
-LineSymStruct::LineSymStruct() {};
+LineSymStruct::LineSymStruct() = default;
 
 
 LineSymStruct::LineSymStruct(double xzSum, double xSum, double zSum, double x2Sum, double n)
@@ -157,7 +139,7 @@ LineSymStruct::LineSymStruct(double xzSum, double xSum, double zSum, double x2Su
 };
 
 
-Node LineSymStruct::getSymNode(Node n)
+Node LineSymStruct::getSymNode(Node n) const
 {
     if (linetype == lineDirection::vertical)
         return Node(-n.x, n.z);

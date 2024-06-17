@@ -1,9 +1,9 @@
 #include "Reader.h"
 
-Reader::Reader() {};
+Reader::Reader() = default;
 
 
-Reader::Reader(std::string filePathValue, int detailTypeValue)
+Reader::Reader(std::string const filePathValue, int detailTypeValue)
 {
 
     detailTypeNum = detailTypeValue;
@@ -14,10 +14,12 @@ Reader::Reader(std::string filePathValue, int detailTypeValue)
 
     if (file.is_open())
     {
-        std::string s, str;
+        std::string s;
+        std::string str;
+
         while (std::getline(file, s))
         {
-            if (s.find("#") != 0 and s.find("node") != 0)
+            if (s.find("#") != 0 && s.find("node") != 0)
             {
                 switch (readerSetting)
                 {
@@ -26,8 +28,11 @@ Reader::Reader(std::string filePathValue, int detailTypeValue)
                 case ReaderSettingEnum::readNodes:
                 {
                     std::stringstream ss(s);
-                    int id, indexnum = 0;
-                    double x, z;
+                    int id;
+                    int indexnum = 0;
+
+                    double x;
+                    double z;
 
                     while (std::getline(ss, str, ';'))
                     {
@@ -61,9 +66,12 @@ Reader::Reader(std::string filePathValue, int detailTypeValue)
                 case ReaderSettingEnum::readContacts:
                 {
                     std::stringstream ss(s);
-                    int id, toolNumber, n1, n2, indexnum = 0;
+                    int id;
+                    int toolNumber;
+                    int n1;
+                    int n2;
+                    int indexnum = 0;
                     std::string fieldType;
-                    bool isNotBreak = true;
 
                     while (std::getline(ss, str, ';'))
                     {

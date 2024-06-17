@@ -5,8 +5,6 @@
 
 #include "GeometryInit.h"
 
-//const enum class symAxisStateValue { noneStateAxis, beginNodeAxis, bothNodeebetweenFigures };
-
 
 class ContourWalkerTool
 {

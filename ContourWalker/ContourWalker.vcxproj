@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ContourWalker.cpp" />
     <ClCompile Include="ContourWalkerDRW.cpp" />
     <ClCompile Include="Drawer.cpp" />
     <ClCompile Include="Geometry.cpp" />
@@ -147,6 +148,9 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Writer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <list>
 #include <string>
 
 const enum class lineDirection { vertical, other };
@@ -112,6 +113,6 @@ public:
     LineSymStruct(double xzSum, double xSum, double zSum, double x2Sum, double n);
 
 
-    Node getSymNode(Node n);
+    Node getSymNode(Node n) const;
 };
 

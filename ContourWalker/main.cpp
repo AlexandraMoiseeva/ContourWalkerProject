@@ -9,7 +9,7 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(960 * 1.5, 540 * 1.5), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(1440, 810), "SFML works!");
     sf::View view(sf::FloatRect(0, 0, 960 * 1.5, 540 * 1.5));
 
     window.setView(view);
@@ -45,9 +45,9 @@ int main()
             {
 
                 if (event.mouseWheelScroll.delta > 0)
-                    view.zoom(0.93);
+                    view.zoom(0.93f);
                 else
-                    view.zoom(1.03);
+                    view.zoom(1.03f);
                 window.setView(view);
             }
 
@@ -98,6 +98,7 @@ int main()
         if (time++ == 70)
             time = 1;
     }
+
 
     return 0;
 }

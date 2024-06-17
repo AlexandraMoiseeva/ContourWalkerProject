@@ -10,12 +10,11 @@ protected:
     std::vector<ContourWalkerTool> toolFigures;
     std::vector<ContourWalker> wpFigures;
 
-    CWM() {};
+    CWM() = default;
 
 
     void findSpace();
 
 
     void trackSpaceArea();
-
 };
