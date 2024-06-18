@@ -6,7 +6,7 @@ Writer::Writer() {};
 
 void Writer::write(std::string folder, std::stringstream& ss, CWMDrawerReader& cwm)
 {
-    std::ofstream fileOut("../return" + folder + "/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
+    std::ofstream fileOut("../return_" + folder + "/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
 
     for (int i = 0; i < 2 * 1; ++i)
         for (SpaceArea elem : cwm.spaceAreas[i])
@@ -30,14 +30,14 @@ void Writer::writeInOut(std::ofstream& fileOutValue, SpaceArea elem, std::vector
 
     fileOutValue << "Object type; node id;\n";
 
-    for (auto point = elem.contourWP.begin(); point != elem.contourWP.end(); ++point)
+    for (auto const& point : elem.contourWP)
     {
         fileOutValue << "Workpiece" + std::to_string((int)elem.detailWPId) + "; "
-            + std::to_string((*std::next(cntrWP.begin(), *point))->id) + (isSym ? ".Sym" : "") + ";\n";
+            + std::to_string(cntrWP[point]->sourceObjInfo.mesh_obj_id) + (isSym ? ".Sym" : "") + ";\n";
     }
-    for (auto point = elem.contourTool.begin(); point != elem.contourTool.end(); ++point)
+    for (auto const& point : elem.contourTool)
     {
         fileOutValue << "Tool" + std::to_string((int)elem.detailToolId) + "; "
-            + std::to_string((*std::next(cntrTool.begin(), *point))->id) + (isSym ? ".Sym" : "") + ";\n";
+            + std::to_string(cntrTool[point]->sourceObjInfo.mesh_obj_id) + (isSym ? ".Sym" : "") + ";\n";
     }
 }

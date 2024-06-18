@@ -68,6 +68,8 @@ artifacts/
 
 # result folder
 return*
+return_data_example
+cavity
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt

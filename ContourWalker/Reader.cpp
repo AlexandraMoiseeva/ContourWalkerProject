@@ -46,10 +46,9 @@ Reader::Reader(std::string const filePathValue, int detailTypeValue)
                         ++indexnum;
                     }
 
-                    Node node(id, x, z);
-                    node.toolType = detailTypeNum;
+                    Node node(id, detailTypeValue, x, z);
 
-                    connect.push_back(std::make_pair(std::numeric_limits<unsigned>::max(), Segment()));
+                    connect.push_back(std::make_pair(std::numeric_limits<int>::max(), Segment()));
 
                     nodes.push_back(node);
                     break;
@@ -57,7 +56,7 @@ Reader::Reader(std::string const filePathValue, int detailTypeValue)
                 case ReaderSettingEnum::readEdge:
                 {
                     int numContour = std::stoi(s);
-                    if (std::next(nodes.begin(), numContour)->placeInContour == std::numeric_limits<unsigned>::max())
+                    if (std::next(nodes.begin(), numContour)->placeInContour == std::numeric_limits<int>::max())
                         std::next(nodes.begin(), numContour)->placeInContour = contour.size();
 
                     contour.push_back(numContour);

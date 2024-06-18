@@ -3,22 +3,9 @@
 #include "ContourWalker.h"
 
 
-class CWMDrawerReader : protected CWM
+class CWMDrawerReader : public CWM
 {
 public:
-    std::vector<SpaceArea>* spaceAreas = nullptr;
 
-    std::vector<ContourWalkerTool> toolFigures;
-    std::vector<ContourWalker> wpFigures;
-
-    CWMDrawerReader();
-
-
-    CWMDrawerReader(std::string folder, std::stringstream& ss, unsigned toolNumber, unsigned wpNumber);
-
-
-    void findSpace();
-
-
-    void trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas);
+    CWMDrawerReader(std::string folder, std::stringstream& ss, int toolNumber, int wpNumber);
 };

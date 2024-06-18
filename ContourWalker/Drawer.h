@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Geometry.h"
 #include "ContourWalkerDRW.h" 
 
@@ -12,18 +11,15 @@ private:
     std::pair<double, double> drawScale(Node node, double scale = 5);
 
 
-    void drawLine(Node n1, Node n2, sf::RenderWindow& window, unsigned alpha = 255);
+    void drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha = 255);
 
 
-    void drawContour(sf::RenderWindow& window, ContourWalkerTool& cwt);
+    void drawContour(sf::RenderWindow& window, Tool& cwt);
 
 
-    void drawContour(sf::RenderWindow& window, ContourWalker& cwt);
-
-
-    void drawSpace(sf::RenderWindow& window, CWMDrawerReader& cwm);
+    void drawSpace(sf::RenderWindow& window, CWM& cwm);
 
  public:
 
-     void drawAll(sf::RenderWindow& window, CWMDrawerReader& cwm);
+     void drawAll(sf::RenderWindow& window, CWM& cwm);
 };

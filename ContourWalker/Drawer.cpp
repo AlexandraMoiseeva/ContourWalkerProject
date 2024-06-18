@@ -1,4 +1,3 @@
-#include <list>
 #include <string>
 #include <iostream>
 
@@ -7,11 +6,11 @@
 
 std::pair<double, double> Drawer::drawScale(Node node, double scale)
 {
-    return std::make_pair(node.x * 1920 * scale + 50, (0.4 - node.z) * 1080 * scale);
+    return std::make_pair(node.coordinate.x * 1920 * scale + 50, (0.4 - node.coordinate.z) * 1080 * scale);
 };
 
 
-void Drawer::drawLine(Node n1, Node n2, sf::RenderWindow& window, unsigned alpha)
+void Drawer::drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha)
 {
     auto vectorpoint1result = drawScale(n1);
     auto vectorpoint2result = drawScale(n2);
@@ -34,17 +33,17 @@ void Drawer::drawLine(Node n1, Node n2, sf::RenderWindow& window, unsigned alpha
 }
 
 
-void Drawer::drawContour(sf::RenderWindow& window, ContourWalkerTool& cwt)
+void Drawer::drawContour(sf::RenderWindow& window, Tool& cwt)
 {
-    Node* nodepoint1 = cwt.contour.back();
+    Node const* nodepoint1 = cwt.contour.back();
 
     for (auto& it : cwt.contour)
     {
-        Node* nodepoint2 = it;
+        Node const* nodepoint2 = it;
 
         drawLine(*nodepoint1, *nodepoint2, window, 100);
 
-        if (cwt.lineSym.a == std::numeric_limits<unsigned>::max())
+        if (cwt.lineSym.a == std::numeric_limits<int>::max())
             continue;
 
         drawLine(cwt.lineSym.getSymNode(*nodepoint1), cwt.lineSym.getSymNode(*nodepoint2), window, 100);
@@ -54,27 +53,7 @@ void Drawer::drawContour(sf::RenderWindow& window, ContourWalkerTool& cwt)
 };
 
 
-void Drawer::drawContour(sf::RenderWindow& window, ContourWalker& cwt)
-{
-    Node* nodepoint1 = cwt.contour.back();
-
-    for (auto& it : cwt.contour)
-    {
-        Node* nodepoint2 = it;
-
-        drawLine(*nodepoint1, *nodepoint2, window, 100);
-
-        if (cwt.lineSym.a == std::numeric_limits<unsigned>::max())
-            continue;
-
-        drawLine(cwt.lineSym.getSymNode(*nodepoint1), cwt.lineSym.getSymNode(*nodepoint2), window, 100);
-
-        nodepoint1 = nodepoint2;
-    }
-};
-
-
-void Drawer::drawSpace(sf::RenderWindow& window, CWMDrawerReader& cwm)
+void Drawer::drawSpace(sf::RenderWindow& window, CWM& cwm)
 {
     sf::Text text;
     sf::Font font;
@@ -97,22 +76,22 @@ void Drawer::drawSpace(sf::RenderWindow& window, CWMDrawerReader& cwm)
 
             auto point0 = **std::next(cntrWP.begin(), *elem.contourWP.begin());
 
-            for (auto&& point = std::next(elem.contourWP.begin()); point != elem.contourWP.end(); ++point)
+            for (auto const& point : elem.contourWP)
             {
-                Drawer().drawLine(point0, **std::next(cntrWP.begin(), *point), window);
+                Drawer().drawLine(point0, **std::next(cntrWP.begin(), point), window);
 
-                point0 = **std::next(cntrWP.begin(), *point);
+                point0 = **std::next(cntrWP.begin(), point);
             }
 
             Drawer().drawLine(point0, **std::next(cntrTool.begin(), *elem.contourTool.begin()), window);
 
             point0 = **std::next(cntrTool.begin(), *elem.contourTool.begin());
 
-            for (auto&& point = std::next(elem.contourTool.begin()); point != elem.contourTool.end(); ++point)
+            for (auto const& point : elem.contourTool)
             {
-                Drawer().drawLine(point0, **std::next(cntrTool.begin(), *point), window);
+                Drawer().drawLine(point0, **std::next(cntrTool.begin(), point), window);
 
-                point0 = **std::next(cntrTool.begin(), *point);
+                point0 = **std::next(cntrTool.begin(), point);
             }
 
             Drawer().drawLine(point0, **std::next(cntrWP.begin(), *elem.contourWP.begin()), window);
@@ -130,7 +109,7 @@ void Drawer::drawSpace(sf::RenderWindow& window, CWMDrawerReader& cwm)
 }
 
 
-void Drawer::drawAll(sf::RenderWindow& window, CWMDrawerReader& cwm)
+void Drawer::drawAll(sf::RenderWindow& window, CWM& cwm)
 {
     for (auto& elem : cwm.toolFigures)
         drawContour(window, elem);

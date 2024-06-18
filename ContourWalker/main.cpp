@@ -14,23 +14,23 @@ int main()
 
     window.setView(view);
     
-    unsigned time = 1;
+    int time = 1;
 
-    std::string folder = "data(2)";
+    std::string folder = "data_example/data(2)";
 
-    if (std::filesystem::exists("../return" + folder))
+    if (std::filesystem::exists("../return_" + folder))
     {
-        std::filesystem::remove_all("../return" + folder);
+        std::filesystem::remove_all("../return_" + folder);
     }
 
-    std::filesystem::create_directory("../return" + folder);
+    std::filesystem::create_directory("../return_" + folder);
 
     std::vector<SpaceArea>* lastSpaceAreas;
 
     lastSpaceAreas = new std::vector<SpaceArea>[2 * 1];
 
-    unsigned toolNumber = 2;
-    unsigned wpNumber = 1;
+    int toolNumber = 2;
+    int wpNumber = 1;
 
     while (window.isOpen())
     {
@@ -98,7 +98,6 @@ int main()
         if (time++ == 70)
             time = 1;
     }
-
 
     return 0;
 }

@@ -5,16 +5,16 @@
 class CWM
 {
 protected:
+    CWM();
+public:
     std::vector<SpaceArea>* spaceAreas = nullptr;
 
-    std::vector<ContourWalkerTool> toolFigures;
-    std::vector<ContourWalker> wpFigures;
-
-    CWM() = default;
+    std::vector<Tool> toolFigures;
+    std::vector<Workpiece> wpFigures;
 
 
     void findSpace();
 
 
-    void trackSpaceArea();
+    void trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas);
 };

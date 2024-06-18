@@ -4,50 +4,50 @@
 Node::Node() = default;
 
 
-Node::Node(double xValue, double zValue) : x(xValue), z(zValue) {};
+Node::Node(double xValue, double zValue) : coordinate(xValue, zValue) {};
 
 
-Node::Node(int idValue, double xValue, double zValue) : id(idValue), x(xValue), z(zValue) {};
+Node::Node(int idValue, int detailIdValue, double xValue, double zValue) : sourceObjInfo(detailIdValue, idValue), coordinate(xValue, zValue) {};
 
 
 Segment::Segment() = default;
 
 
-Segment::Segment(unsigned n1Value, unsigned n2Value) : n1(n1Value), n2(n2Value) {};
+Segment::Segment(int n1Value, int n2Value) : n1(n1Value), n2(n2Value) {};
 
 
 Contour::Contour() = default;
 
 
-Contour::Contour(unsigned nodeValue) : beginNode(nodeValue)
+Contour::Contour(int nodeValue) : beginNode(nodeValue)
 {
     contour.push_back(nodeValue);
 };
 
 
-void Contour::push_back(unsigned nodeValue)
+void Contour::push_back(int nodeValue)
 {
     contour.push_back(nodeValue);
     endNode = nodeValue;
 };
 
 
-void Contour::push_front(unsigned nodeValue)
+void Contour::push_front(int nodeValue)
 {
     contour.push_front(nodeValue);
-    if (endNode == std::numeric_limits<unsigned>::max())
+    if (endNode == std::numeric_limits<int>::max())
         endNode = beginNode;
     beginNode = nodeValue;
 };
 
 
-std::list<unsigned>::iterator Contour::begin()
+std::deque<int>::iterator Contour::begin()
 {
     return contour.begin();
 };
 
 
-std::list<unsigned>::iterator Contour::end()
+std::deque<int>::iterator Contour::end()
 {
     return contour.end();
 };
@@ -56,7 +56,7 @@ std::list<unsigned>::iterator Contour::end()
 SpaceArea::SpaceArea() = default;
 
 
-SpaceArea::SpaceArea(unsigned detailWPIdValue, unsigned detailToolIdValue, Contour contourWPValue, Contour contourToolValue) :
+SpaceArea::SpaceArea(int detailWPIdValue, int detailToolIdValue, Contour contourWPValue, Contour contourToolValue) :
     detailToolId(detailToolIdValue), detailWPId(detailWPIdValue), contourTool(contourToolValue), contourWP(contourWPValue) {};
 
 
@@ -72,7 +72,7 @@ void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cnt
     {
         point2 = *cntrWP[elem];
 
-        sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
+        sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
 
         point1 = point2;
     }
@@ -81,14 +81,14 @@ void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cnt
     {
         point2 = *cntrTool[elem1];
 
-        sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
+        sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
 
         point1 = point2;
     }
 
     point2 = **std::next(cntrWP.begin(), *contourWP.begin());
 
-    sumSquare += 0.5 * (point1.x * point2.z - point2.x * point1.z);
+    sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
 
     spaceSquare = abs(sumSquare);
 };
@@ -142,12 +142,12 @@ LineSymStruct::LineSymStruct(double xzSum, double xSum, double zSum, double x2Su
 Node LineSymStruct::getSymNode(Node n) const
 {
     if (linetype == lineDirection::vertical)
-        return Node(-n.x, n.z);
+        return Node(-n.coordinate.x, n.coordinate.z);
 
     if (abs(a) < 1e-5)
-        return Node(n.x, 2 * b - n.z);
+        return Node(n.coordinate.x, 2 * b - n.coordinate.z);
 
-    double x0 = (n.z + (1.0f / a) * n.x - b) / (a + (1.0f / a));
+    double x0 = (n.coordinate.z + (1.0f / a) * n.coordinate.x - b) / (a + (1.0f / a));
     double z0 = a * x0 + b;
-    return (Node(2 * x0 - n.x, 2 * z0 - n.z));
+    return (Node(2 * x0 - n.coordinate.x, 2 * z0 - n.coordinate.z));
 }

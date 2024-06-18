@@ -17,15 +17,7 @@ const enum class ReaderSettingEnum { skip, readNodes, readEdge, readContacts };
 
 class Reader
 {
-public:
-    unsigned detailTypeNum = 0;
-    std::vector<Node> nodes = {};
-    std::vector< unsigned > contour = {};
-
-    std::vector< unsigned > symAxisPoints = {};
-
-    std::vector< std::pair<unsigned, Segment> > connect = {};
-
+private:
     std::map<std::string, ReaderBikesEnum> readerBikes
     {
         {"node_id;x;z;T;volume", ReaderBikesEnum::nodeTool},
@@ -34,7 +26,15 @@ public:
         {"#bound;0", ReaderBikesEnum::bound},
         {"#contacts", ReaderBikesEnum::contacts}
     };
+public:
+    int detailTypeNum = 0;
+    std::vector<Node> nodes = {};
+    std::vector<int> contour = {};
 
+    std::vector<int> symAxisPoints = {};
+
+    std::vector<std::pair<int, Segment>> connect = {};
+    
 
     Reader();
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <list>
+#include <deque>
 #include <string>
 
 const enum class lineDirection { vertical, other };
@@ -10,15 +10,38 @@ const enum class lineDirection { vertical, other };
 class Node
 {
 public:
-public:
-    unsigned toolType = 0;
+    struct SourceObjInfo {
+        SourceObjInfo() = default;
+
+        SourceObjInfo(int source_body_id, int mesh_obj_id) noexcept
+            : source_body_id{ source_body_id }
+            , mesh_obj_id{ mesh_obj_id } {}
+
+        SourceObjInfo(int source_body_id, int mesh_obj_id, void* src_ptr) noexcept
+            : source_body_id{ source_body_id }
+            , mesh_obj_id{ mesh_obj_id }
+            , ptr{ src_ptr } {}
+
+        int source_body_id = -1;
+        int mesh_obj_id = -1;
+        void* ptr = nullptr;
+    } sourceObjInfo;
+
     bool isSym = false;
 
-    unsigned placeInContour = std::numeric_limits<unsigned>::max();
-    unsigned id = 0;
+    int placeInContour = std::numeric_limits<int>::max();
 
-    double x = 0;
-    double z = 0;
+    struct Coordinate
+    {
+        double x = 0;
+        double z = 0;
+
+        Coordinate() = default;
+
+
+        Coordinate(double xValue, double zValue) : x(xValue), z(zValue) {};
+    } coordinate;
+    
 
     Node();
 
@@ -26,58 +49,58 @@ public:
     Node(double xValue, double zValue);
 
 
-    Node(int idValue, double xValue, double zValue);
+    Node(int idValue, int detailIdValue, double xValue, double zValue);
 };
 
 
 class Segment
 {
 public:
-    unsigned n1 = 0;
-    unsigned n2 = 0;
+    int n1 = 0;
+    int n2 = 0;
 
     Segment();
 
 
-    Segment(unsigned n1Value, unsigned n2Value);
+    Segment(int n1Value, int n2Value);
 };
 
 
 class Contour
 {
 private:
-    std::list<unsigned> contour = {};
+    std::deque<int> contour = {};
 
 public:
-    unsigned beginNode = std::numeric_limits<unsigned>::max();
-    unsigned endNode = std::numeric_limits<unsigned>::max();
+    int beginNode = std::numeric_limits<int>::max();
+    int endNode = std::numeric_limits<int>::max();
 
     Contour();
 
 
-    Contour(unsigned nodeValue);
+    Contour(int nodeValue);
 
 
-    void push_back(unsigned nodeValue);
+    void push_back(int nodeValue);
 
 
-    void push_front(unsigned nodeValue);
+    void push_front(int nodeValue);
 
 
-    std::list<unsigned>::iterator begin();
+    std::deque<int>::iterator begin();
 
 
-    std::list<unsigned>::iterator end();
+    std::deque<int>::iterator end();
 };
 
 
 class SpaceArea
 {
 public:
-    unsigned detailToolId = 0;
-    unsigned detailWPId = 0;
+    int detailToolId = 0;
+    int detailWPId = 0;
 
-    unsigned spaceAreaId = std::numeric_limits<unsigned>::max();
+    int spaceAreaId = std::numeric_limits<int>::max();
 
     double spaceSquare = 0;
 
@@ -86,7 +109,7 @@ public:
 
     SpaceArea();
 
-    SpaceArea(unsigned detailWPIdValue, unsigned detailToolIdValue, Contour contourWPValue, Contour contourToolValue);
+    SpaceArea(int detailWPIdValue, int detailToolIdValue, Contour contourWPValue, Contour contourToolValue);
 
     void intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool);
 
@@ -103,8 +126,8 @@ private:
     lineDirection linetype = lineDirection::other;
 public:
 
-    double a = std::numeric_limits<unsigned>::max();
-    double b = std::numeric_limits<unsigned>::max();
+    double a = std::numeric_limits<int>::max();
+    double b = std::numeric_limits<int>::max();
 
 
     LineSymStruct();

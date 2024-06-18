@@ -1,14 +1,14 @@
 #include "Geometry.h"
 
-ContourWalkerTool::ContourWalkerTool() = default;
+Tool::Tool() = default;
 
 
-ContourWalkerTool::ContourWalkerTool(std::vector<Node>& nodesValue, std::vector<unsigned int>& contourValue, std::vector<unsigned>& symAxisPointsValue,
-    std::vector<std::pair<unsigned int, Segment>>& connectValue, unsigned detailTypeValue) : detailTypeNum(detailTypeValue)
+Tool::Tool(std::vector<Node>& nodesValue, std::vector<int>& contourValue, std::vector<int>& symAxisPointsValue,
+    std::vector<std::pair<int, Segment>>& connectValue, int detailTypeValue) : detailTypeNum(detailTypeValue)
 {
     nodes.assign(nodesValue.begin(), nodesValue.end());
 
-    for (unsigned int const& elem : contourValue)
+    for (int const& elem : contourValue)
         contour.push_back(&nodes[elem]);
 
     symAxisInizialisation(symAxisPointsValue);
@@ -17,7 +17,7 @@ ContourWalkerTool::ContourWalkerTool(std::vector<Node>& nodesValue, std::vector<
 };
 
 
-void ContourWalkerTool::symAxisInizialisation(std::vector<unsigned int>& symAxisPoints)
+void Tool::symAxisInizialisation(std::vector<int>& symAxisPoints)
 {
     if (symAxisPoints.empty())
         return;
@@ -31,10 +31,10 @@ void ContourWalkerTool::symAxisInizialisation(std::vector<unsigned int>& symAxis
     for (int idElem : symAxisPoints)
     {
         Node elem = *std::next(nodes.begin(), idElem);
-        xzSum += elem.x * elem.z;
-        xSum += elem.x;
-        zSum += elem.z;
-        x2Sum += elem.x * elem.x;
+        xzSum += elem.coordinate.x * elem.coordinate.z;
+        xSum += elem.coordinate.x;
+        zSum += elem.coordinate.z;
+        x2Sum += elem.coordinate.x * elem.coordinate.x;
         ++n;
     }
 
@@ -43,17 +43,17 @@ void ContourWalkerTool::symAxisInizialisation(std::vector<unsigned int>& symAxis
 
 
 
-ContourWalker::ContourWalker() : ContourWalkerTool() {};
+Workpiece::Workpiece() : Tool() {};
 
 
-ContourWalker::ContourWalker(std::vector<Node>& nodesValue, std::vector<unsigned int>& contourValue, std::vector<unsigned>& symAxisPointsValue,
-    std::vector<std::pair<unsigned int, Segment>>& connectValue, unsigned detailTypeValue) 
+Workpiece::Workpiece(std::vector<Node>& nodesValue, std::vector<int>& contourValue, std::vector<int>& symAxisPointsValue,
+    std::vector<std::pair<int, Segment>>& connectValue, int detailTypeValue) 
 {
     detailTypeNum = detailTypeValue;
 
     nodes.assign(nodesValue.begin(), nodesValue.end());
 
-    for (unsigned int const& elem : contourValue)
+    for (int const& elem : contourValue)
         contour.push_back(&nodes[elem]);
 
     symAxisInizialisation(symAxisPointsValue);
@@ -62,28 +62,28 @@ ContourWalker::ContourWalker(std::vector<Node>& nodesValue, std::vector<unsigned
 };
 
 
-std::vector<SpaceArea> ContourWalker::intersectionSpace(ContourWalkerTool& otherDetail)
+std::vector<SpaceArea> Workpiece::intersectionSpace(Tool& otherDetail)
 {
     std::vector<SpaceArea> spaceAreas = {};
-    unsigned detailTypeValue = otherDetail.detailTypeNum;
+    int detailTypeValue = otherDetail.detailTypeNum;
     bool StartSpaceContour = false;
     int spaceAreaCount = 0;
     int dopusk = 0;
 
     for (auto it = contour.begin() + 1; it != contour.end(); ++it)
     {
-        if (std::next(connect.begin(), (*it)->id)->first != detailTypeValue && !(*it)->isSym)
+        if (std::next(connect.begin(), (*it)->sourceObjInfo.mesh_obj_id)->first != detailTypeValue && !(*it)->isSym)
         {
             if (StartSpaceContour == false)
             {
-                if (std::next(connect.begin(), (*std::prev(it))->id)->first == detailTypeValue)
+                if (std::next(connect.begin(), (*std::prev(it))->sourceObjInfo.mesh_obj_id)->first == detailTypeValue)
                 {
                     spaceAreas.emplace_back(
                         detailTypeNum,
                             detailTypeValue,
                             Contour((*(it - 1))->placeInContour),
                             Contour(otherDetail.nodes[std::next(connect.begin(),
-                                (*(it - 1))->id)->second.n2].placeInContour));
+                                (*(it - 1))->sourceObjInfo.mesh_obj_id)->second.n2].placeInContour));
                 }
                 else
                     if ((*(it - 1))->isSym)
@@ -108,7 +108,7 @@ std::vector<SpaceArea> ContourWalker::intersectionSpace(ContourWalkerTool& other
                 spaceAreas.back().contourWP.push_back((*(it - 1))->placeInContour);
             }
         }
-        if (std::next(connect.begin(), (*it)->id)->first == detailTypeValue || (*it)->isSym)
+        if (connect[(*it)->sourceObjInfo.mesh_obj_id].first == detailTypeValue || (*it)->isSym)
         {
             if (StartSpaceContour == true)
             {
@@ -117,12 +117,12 @@ std::vector<SpaceArea> ContourWalker::intersectionSpace(ContourWalkerTool& other
                 spaceAreas.back().contourWP.push_back((*std::prev(it))->placeInContour);
                 spaceAreas.back().contourWP.push_back((*it)->placeInContour);
 
-                if (std::next(connect.begin(), (*it)->id)->first == detailTypeValue)
+                if (std::next(connect.begin(), (*it)->sourceObjInfo.mesh_obj_id)->first == detailTypeValue)
                 {
-                    if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
+                    if (spaceAreas.back().contourTool.beginNode != std::numeric_limits<int>::max())
                     {
                         int it2 = -- * (spaceAreas.back()).contourTool.begin();
-                        int it3 = --otherDetail.nodes[std::next(connect.begin(), (*it)->id)->second.n1].placeInContour;
+                        int it3 = -- otherDetail.nodes[std::next(connect.begin(), (*it)->sourceObjInfo.mesh_obj_id)->second.n1].placeInContour;
 
                         for (int it1 = it2; it1 != it3 && it1 != it3 - otherDetail.contour.size(); --it1)
                         {
@@ -131,7 +131,7 @@ std::vector<SpaceArea> ContourWalker::intersectionSpace(ContourWalkerTool& other
                     }
                     else
                     {
-                        auto it1 = std::next(connect.begin(), (*it)->id)->second.n1;
+                        auto it1 = std::next(connect.begin(), (*it)->sourceObjInfo.mesh_obj_id)->second.n1;
 
                         spaceAreas.back().contourTool.push_front(it1);
 
@@ -146,7 +146,7 @@ std::vector<SpaceArea> ContourWalker::intersectionSpace(ContourWalkerTool& other
                 }
                 else
                 {
-                    if (std::prev(spaceAreas.end())->contourTool.beginNode != std::numeric_limits<unsigned>::max())
+                    if (spaceAreas.back().contourTool.beginNode != std::numeric_limits<int>::max())
                     {
                         auto it1 = *(std::prev(spaceAreas.end()))->contourTool.begin();
 
@@ -181,7 +181,7 @@ std::vector<SpaceArea> ContourWalker::intersectionSpace(ContourWalkerTool& other
         }
 
         int it2 = *(spaceAreas.back()).contourTool.begin();
-        int it3 = otherDetail.nodes[std::next(connect.begin(), (*(contour.begin() + dopusk))->id)->second.n1].placeInContour;
+        int it3 = otherDetail.nodes[std::next(connect.begin(), (*(contour.begin() + dopusk))->sourceObjInfo.mesh_obj_id)->second.n1].placeInContour;
 
         for (int it1 = it2; it1 != it3 && it1 != it3 - otherDetail.contour.size(); --it1)
         {
