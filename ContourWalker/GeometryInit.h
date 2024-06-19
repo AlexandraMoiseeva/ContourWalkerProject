@@ -7,6 +7,21 @@
 const enum class lineDirection { vertical, other };
 
 
+const enum class detailType { tool, workpiece };
+
+struct detailTypeValue
+{
+public:
+    detailType detail_type = detailType::tool;
+    int detail_id = -1;
+
+    detailTypeValue() = default;
+
+    detailTypeValue(detailType detail_type_value, int detail_id_value)
+        : detail_type(detail_type_value), detail_id(detail_id_value) {};
+};
+
+
 class Node
 {
 public:

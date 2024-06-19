@@ -4,7 +4,7 @@ Tool::Tool() = default;
 
 
 Tool::Tool(std::vector<Node>& nodesValue, std::vector<int>& contourValue, std::vector<int>& symAxisPointsValue,
-    std::vector<std::pair<int, Segment>>& connectValue, int detailTypeValue) : detailTypeNum(detailTypeValue)
+    std::vector<std::pair<int, Segment>>& connectValue, detailType detail_type_value, int detail_id_value) : detail_type(detail_type_value, detail_id_value)
 {
     nodes.assign(nodesValue.begin(), nodesValue.end());
 
@@ -47,9 +47,9 @@ Workpiece::Workpiece() : Tool() {};
 
 
 Workpiece::Workpiece(std::vector<Node>& nodesValue, std::vector<int>& contourValue, std::vector<int>& symAxisPointsValue,
-    std::vector<std::pair<int, Segment>>& connectValue, int detailTypeValue) 
+    std::vector<std::pair<int, Segment>>& connectValue, detailType detail_type_value, int detail_id_value)
 {
-    detailTypeNum = detailTypeValue;
+    detail_type = detailTypeValue(detail_type_value, detail_id_value);
 
     nodes.assign(nodesValue.begin(), nodesValue.end());
 
@@ -65,7 +65,7 @@ Workpiece::Workpiece(std::vector<Node>& nodesValue, std::vector<int>& contourVal
 std::vector<SpaceArea> Workpiece::intersectionSpace(Tool& otherDetail)
 {
     std::vector<SpaceArea> spaceAreas = {};
-    int detailTypeValue = otherDetail.detailTypeNum;
+    int detailTypeValue = otherDetail.detail_type.detail_id;
     bool StartSpaceContour = false;
     int spaceAreaCount = 0;
     int dopusk = 0;
@@ -79,7 +79,7 @@ std::vector<SpaceArea> Workpiece::intersectionSpace(Tool& otherDetail)
                 if (std::next(connect.begin(), (*std::prev(it))->sourceObjInfo.mesh_obj_id)->first == detailTypeValue)
                 {
                     spaceAreas.emplace_back(
-                        detailTypeNum,
+                        detail_type.detail_id,
                             detailTypeValue,
                             Contour((*(it - 1))->placeInContour),
                             Contour(otherDetail.nodes[std::next(connect.begin(),
@@ -89,7 +89,7 @@ std::vector<SpaceArea> Workpiece::intersectionSpace(Tool& otherDetail)
                     if ((*(it - 1))->isSym)
                     {
                         spaceAreas.emplace_back(
-                            detailTypeNum,
+                            detail_type.detail_id,
                                 detailTypeValue,
                                 Contour((*(it - 1))->placeInContour),
                                 Contour());

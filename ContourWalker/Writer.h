@@ -15,7 +15,7 @@ public:
     Writer();
 
 
-    void write(std::string folder, std::stringstream& ss, CWMDrawerReader& cwm);
+    void write(std::string folder, std::stringstream& ss, CWM& cwm);
 
 private:
 

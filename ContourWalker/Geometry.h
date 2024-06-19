@@ -5,12 +5,12 @@
 
 #include "GeometryInit.h"
 
-
 class Tool
 {
 public:
 
-    int detailTypeNum = 0;
+    detailTypeValue detail_type;
+
     std::vector<Node> nodes;
     std::vector<Node*> contour;
 
@@ -22,7 +22,7 @@ public:
 
 
     Tool(std::vector<Node>& nodesValue, std::vector<int>& contourValue, std::vector<int>& symAxisPointsValue,
-        std::vector<std::pair<int, Segment>>& connectValue, int detailTypeValue = 0);
+        std::vector<std::pair<int, Segment>>& connectValue, detailType detail_type_value, int detail_id_value);
 
 protected:
 
@@ -39,7 +39,7 @@ public:
 
 
     Workpiece(std::vector<Node>& nodesValue, std::vector<int>& contourValue, std::vector<int>& symAxisPointsValue,
-        std::vector<std::pair<int, Segment>>& connectValue, int detailTypeValue = 0);
+        std::vector<std::pair<int, Segment>>& connectValue, detailType detail_type_value, int detail_id_value);
 
 
     std::vector<SpaceArea> intersectionSpace(Tool& otherDetail);
