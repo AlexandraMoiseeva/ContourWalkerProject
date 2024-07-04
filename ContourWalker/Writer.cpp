@@ -4,23 +4,20 @@
 Writer::Writer() = default;
 
 
-void Writer::write(std::string folder, std::stringstream& ss, CWM& cwm)
+void Writer::write(std::string folder, CM_CavityModel2D& cm)
 {
-    std::ofstream fileOut("../return_" + folder + "/" + ss.str() + ".txt", std::ofstream::out | std::ofstream::trunc);
+    std::ofstream fileOut("../return_" + folder + ".txt", std::ofstream::out | std::ofstream::trunc);
 
     for (int i = 0; i < 2 * 1; ++i)
-        for (SpaceArea elem : cwm.spaceAreas[i])
+        for (SpaceArea elem : cm.spaceAreas[i])
         {
-            std::vector<Node*> cntrWP = std::next(cwm.wpFigures.begin(), elem.detailWPId + (elem.detailWPId == 0 ? 0 : -1))->contour;
-            std::vector<Node*> cntrTool = std::next(cwm.toolFigures.begin(), elem.detailToolId + (elem.detailToolId == 0 ? 0 : -1))->contour;
-
-            writeInOut(fileOut, elem, cntrWP, cntrTool);
+            writeInOut(fileOut, elem);
         }
 
 }
 
 
-void Writer::writeInOut(std::ofstream& fileOutValue, SpaceArea elem, std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool, bool isSym)
+void Writer::writeInOut(std::ofstream& fileOutValue, SpaceArea elem, bool isSym)
 {
     fileOutValue << "Tool" + std::to_string(elem.detailToolId) + "; "
         "Workpiece" + std::to_string(elem.detailWPId) + "; "
@@ -33,11 +30,11 @@ void Writer::writeInOut(std::ofstream& fileOutValue, SpaceArea elem, std::vector
     for (auto const& point : elem.contourWP)
     {
         fileOutValue << "Workpiece" + std::to_string(elem.detailWPId) + "; "
-            + std::to_string(cntrWP[point]->sourceObjInfo.mesh_obj_id) + (isSym ? ".Sym" : "") + ";\n";
+            + std::to_string((*point)->sourceObjInfo.mesh_obj_id) + (isSym ? ".Sym" : "") + ";\n";
     }
     for (auto const& point : elem.contourTool)
     {
         fileOutValue << "Tool" + std::to_string(elem.detailToolId) + "; "
-            + std::to_string(cntrTool[point]->sourceObjInfo.mesh_obj_id) + (isSym ? ".Sym" : "") + ";\n";
+            + std::to_string((*point)->sourceObjInfo.mesh_obj_id) + (isSym ? ".Sym" : "") + ";\n";
     }
 }

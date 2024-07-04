@@ -18,7 +18,8 @@ public:
     detailTypeValue() = default;
 
     detailTypeValue(detailType detail_type_value, int detail_id_value)
-        : detail_type(detail_type_value), detail_id(detail_id_value) {};
+        : detail_type(detail_type_value),
+        detail_id(detail_id_value) {};
 };
 
 
@@ -44,8 +45,6 @@ public:
 
     bool isSym = false;
 
-    int placeInContour = std::numeric_limits<int>::max();
-
     struct Coordinate
     {
         double x = 0;
@@ -65,26 +64,32 @@ public:
 
 
     Node(int idValue, int detailIdValue, double xValue, double zValue);
+
+
+    bool operator == (Node n);
+
+
+    bool operator != (Node n);
 };
 
 
-class Segment
+class Edge
 {
 public:
     int n1 = 0;
     int n2 = 0;
 
-    Segment();
+    Edge();
 
 
-    Segment(int n1Value, int n2Value);
+    Edge(int n1Value, int n2Value);
 };
 
 
 class Contour
 {
 private:
-    std::deque<int> contour = {};
+    std::deque<Node**> contour = {};
 
 public:
     int beginNode = std::numeric_limits<int>::max();
@@ -93,19 +98,19 @@ public:
     Contour();
 
 
-    Contour(int nodeValue);
+    Contour(Node** nodeValue);
 
 
-    void push_back(int nodeValue);
+    void push_back(Node** nodeValue);
 
 
-    void push_front(int nodeValue);
+    void push_front(Node** nodeValue);
 
 
-    std::deque<int>::iterator begin();
+    std::deque<Node**>::iterator begin();
 
 
-    std::deque<int>::iterator end();
+    std::deque<Node**>::iterator end();
 };
 
 

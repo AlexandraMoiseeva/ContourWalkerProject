@@ -15,9 +15,9 @@ public:
     Writer();
 
 
-    void write(std::string folder, std::stringstream& ss, CWM& cwm);
+    void write(std::string folder, CM_CavityModel2D& cm);
 
 private:
 
-    void writeInOut(std::ofstream& fileOutValue, SpaceArea elem, std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool, bool isSym = false);
+    void writeInOut(std::ofstream& fileOutValue, SpaceArea elem, bool isSym = false);
 };

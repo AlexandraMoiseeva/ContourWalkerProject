@@ -16,7 +16,7 @@ int main()
     
     int time = 1;
 
-    std::string folder = "data_example/data(2)";
+    std::string folder = "data_example/data(0)";
 
     if (std::filesystem::exists("../return_" + folder))
     {
@@ -80,16 +80,18 @@ int main()
 
         ss << std::setw(3) << std::setfill('0') << time;
 
-        CWMDrawerReader cwmObject(folder, ss, toolNumber, wpNumber);
+        CM_CavityModel2D_FromFile cmObject(folder + "/" + ss.str(), toolNumber, wpNumber);
          
-        cwmObject.findSpace();
+        cmObject.contactInizialisation();
+
+        cmObject.findSpace();
         
-        cwmObject.trackSpaceArea(lastSpaceAreas);
-        lastSpaceAreas = cwmObject.spaceAreas;
+        cmObject.trackSpaceArea(lastSpaceAreas);
+        lastSpaceAreas = cmObject.spaceAreas;
 
-        Writer().write(folder, ss, cwmObject);
+        Writer().write(folder + "/" + ss.str(), cmObject);
 
-        Drawer().drawAll(window, cwmObject);
+        Drawer().drawAll(window, cmObject);
 
         sf::sleep(sf::milliseconds(300*1));
 

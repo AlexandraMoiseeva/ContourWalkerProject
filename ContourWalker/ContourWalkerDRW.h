@@ -3,9 +3,9 @@
 #include "ContourWalker.h"
 
 
-class CWMDrawerReader : public CWM
+class CM_CavityModel2D_FromFile : public CM_CavityModel2D
 {
 public:
 
-    CWMDrawerReader(std::string folder, std::stringstream& ss, int toolNumber, int wpNumber);
+    CM_CavityModel2D_FromFile(std::string folder, int toolNumber, int wpNumber);
 };

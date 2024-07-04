@@ -2,19 +2,30 @@
 
 #include "Geometry.h"
 
-class CWM
+class CM_CavityModel2D
 {
 protected:
-    CWM();
-public:
-    std::vector<SpaceArea>* spaceAreas = nullptr;
+    CM_CavityModel2D();
 
     std::vector<Tool> toolFigures;
     std::vector<Workpiece> wpFigures;
+
+public:
+
+    std::vector<SpaceArea>* spaceAreas = nullptr;
+
+
+    const std::vector<Tool>& getToolFigures() const;
+
+
+    const std::vector<Workpiece>& getWpFigures() const;
 
 
     void findSpace();
 
 
     void trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas);
+
+
+    void contactInizialisation();
 };

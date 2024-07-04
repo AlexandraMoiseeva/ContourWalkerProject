@@ -1,9 +1,21 @@
 #include "ContourWalker.h"
 
-CWM::CWM() = default;
+CM_CavityModel2D::CM_CavityModel2D() = default;
 
 
-void CWM::findSpace()
+const std::vector<Tool>& CM_CavityModel2D::getToolFigures() const
+{
+    return toolFigures;
+};
+
+
+const std::vector<Workpiece>& CM_CavityModel2D::getWpFigures() const
+{
+    return wpFigures;
+};
+
+
+void CM_CavityModel2D::findSpace()
 {
     for (int wp_it = 0; wp_it < wpFigures.size(); ++wp_it)
     {
@@ -15,7 +27,7 @@ void CWM::findSpace()
 };
 
 
-void CWM::trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas)
+void CM_CavityModel2D::trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas)
 {
     int maxId = 0;
 
@@ -37,5 +49,20 @@ void CWM::trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas)
                     elem1.spaceAreaId = ++maxId;
             }
         }
+    }
+};
+
+
+void CM_CavityModel2D::contactInizialisation()
+{
+    for (auto& wp : wpFigures)
+    {
+        wp.contactInizialisation(toolFigures);
+        wp.inizialisation();
+    }
+
+    for (auto& tool : toolFigures)
+    {
+        tool.inizialisation();
     }
 };

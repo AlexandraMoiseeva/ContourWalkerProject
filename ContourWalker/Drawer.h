@@ -14,12 +14,12 @@ private:
     void drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha = 255);
 
 
-    void drawContour(sf::RenderWindow& window, Tool& cwt);
+    void drawContour(sf::RenderWindow& window, const DetailInit& cwt);
 
 
-    void drawSpace(sf::RenderWindow& window, CWM& cwm);
+    void drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm);
 
  public:
 
-     void drawAll(sf::RenderWindow& window, CWM& cwm);
+     void drawAll(sf::RenderWindow& window, CM_CavityModel2D& cm);
 };

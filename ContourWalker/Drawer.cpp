@@ -33,7 +33,7 @@ void Drawer::drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha)
 }
 
 
-void Drawer::drawContour(sf::RenderWindow& window, Tool& cwt)
+void Drawer::drawContour(sf::RenderWindow& window, const DetailInit& cwt)
 {
     Node const* nodepoint1 = cwt.contour.back();
 
@@ -43,17 +43,16 @@ void Drawer::drawContour(sf::RenderWindow& window, Tool& cwt)
 
         drawLine(*nodepoint1, *nodepoint2, window, 100);
 
-        if (cwt.lineSym.a == std::numeric_limits<int>::max())
-            continue;
-
-        drawLine(cwt.lineSym.getSymNode(*nodepoint1), cwt.lineSym.getSymNode(*nodepoint2), window, 100);
+        if (cwt.lineSym.a != std::numeric_limits<int>::max())
+            drawLine(cwt.lineSym.getSymNode(*nodepoint1), cwt.lineSym.getSymNode(*nodepoint2), window, 100);
 
         nodepoint1 = nodepoint2;
+
     }
 };
 
 
-void Drawer::drawSpace(sf::RenderWindow& window, CWM& cwm)
+void Drawer::drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm)
 {
     sf::Text text;
     sf::Font font;
@@ -68,33 +67,30 @@ void Drawer::drawSpace(sf::RenderWindow& window, CWM& cwm)
     text.setFillColor(sf::Color::Red);
 
     for (int i = 0; i < 2 * 1; ++i)
-        for (auto& elem : cwm.spaceAreas[i])
+        for (auto& elem : cm.spaceAreas[i])
         {
-
-            std::vector<Node*> cntrWP = std::next(cwm.wpFigures.begin(), elem.detailWPId + (elem.detailWPId == 0 ? 0 : -1))->contour;
-            std::vector<Node*> cntrTool = std::next(cwm.toolFigures.begin(), elem.detailToolId + (elem.detailToolId == 0 ? 0 : -1))->contour;
-
-            auto point0 = **std::next(cntrWP.begin(), *elem.contourWP.begin());
+            auto point0 = ***elem.contourWP.begin();
 
             for (auto const& point : elem.contourWP)
             {
-                Drawer().drawLine(point0, **std::next(cntrWP.begin(), point), window);
+                Drawer().drawLine(point0, **point, window);
 
-                point0 = **std::next(cntrWP.begin(), point);
+                point0 = **point;
             }
 
-            Drawer().drawLine(point0, **std::next(cntrTool.begin(), *elem.contourTool.begin()), window);
 
-            point0 = **std::next(cntrTool.begin(), *elem.contourTool.begin());
+            Drawer().drawLine(point0, ***elem.contourTool.begin(), window);
+
+            point0 = ***elem.contourTool.begin();
 
             for (auto const& point : elem.contourTool)
             {
-                Drawer().drawLine(point0, **std::next(cntrTool.begin(), point), window);
+                Drawer().drawLine(point0, **point, window);
 
-                point0 = **std::next(cntrTool.begin(), point);
+                point0 = **point;
             }
 
-            Drawer().drawLine(point0, **std::next(cntrWP.begin(), *elem.contourWP.begin()), window);
+            Drawer().drawLine(point0, ***elem.contourWP.begin(), window);
 
             auto textPoint = Drawer().drawScale(point0);
             text.setPosition(textPoint.first + 50, textPoint.second + 50);
@@ -105,16 +101,15 @@ void Drawer::drawSpace(sf::RenderWindow& window, CWM& cwm)
             text.setString(std::to_string(elem.detailWPId) + "." + std::to_string(elem.detailToolId) + '.' + std::to_string(elem.spaceAreaId));
             window.draw(text);
         }
+};
 
-}
 
-
-void Drawer::drawAll(sf::RenderWindow& window, CWM& cwm)
+void Drawer::drawAll(sf::RenderWindow& window, CM_CavityModel2D& cm)
 {
-    for (auto& elem : cwm.toolFigures)
+    for (const auto& elem : cm.getToolFigures())
         drawContour(window, elem);
-    for (auto& elem : cwm.wpFigures)
+    for (const auto& elem : cm.getWpFigures())
         drawContour(window, elem);
 
-    drawSpace(window, cwm);
+    drawSpace(window, cm);
 }

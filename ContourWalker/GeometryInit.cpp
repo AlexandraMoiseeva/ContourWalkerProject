@@ -10,44 +10,56 @@ Node::Node(double xValue, double zValue) : coordinate(xValue, zValue) {};
 Node::Node(int idValue, int detailIdValue, double xValue, double zValue) : sourceObjInfo(detailIdValue, idValue), coordinate(xValue, zValue) {};
 
 
-Segment::Segment() = default;
+bool Node::operator == (Node n)
+{
+    return sourceObjInfo.mesh_obj_id == n.sourceObjInfo.mesh_obj_id && sourceObjInfo.source_body_id == n.sourceObjInfo.source_body_id;
+};
 
 
-Segment::Segment(int n1Value, int n2Value) : n1(n1Value), n2(n2Value) {};
+bool Node::operator != (Node n)
+{
+    return !(sourceObjInfo.mesh_obj_id == n.sourceObjInfo.mesh_obj_id && sourceObjInfo.source_body_id == n.sourceObjInfo.source_body_id);
+};
+
+
+Edge::Edge() = default;
+
+
+Edge::Edge(int n1Value, int n2Value) : n1(n1Value), n2(n2Value) {};
 
 
 Contour::Contour() = default;
 
 
-Contour::Contour(int nodeValue) : beginNode(nodeValue)
+Contour::Contour(Node** nodeValue) : beginNode(0)
 {
     contour.push_back(nodeValue);
 };
 
 
-void Contour::push_back(int nodeValue)
+void Contour::push_back(Node** nodeValue)
 {
     contour.push_back(nodeValue);
-    endNode = nodeValue;
+    endNode = 0;
 };
 
 
-void Contour::push_front(int nodeValue)
+void Contour::push_front(Node** nodeValue)
 {
     contour.push_front(nodeValue);
     if (endNode == std::numeric_limits<int>::max())
         endNode = beginNode;
-    beginNode = nodeValue;
+    beginNode = 0;
 };
 
 
-std::deque<int>::iterator Contour::begin()
+std::deque<Node**>::iterator Contour::begin()
 {
     return contour.begin();
 };
 
 
-std::deque<int>::iterator Contour::end()
+std::deque<Node**>::iterator Contour::end()
 {
     return contour.end();
 };
@@ -66,11 +78,11 @@ void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cnt
     Node point1;
     Node point2;
 
-    point1 = **std::next(cntrWP.begin(), *contourWP.begin());
+    point1 = **cntrWP.begin();
 
     for (auto const& elem : contourWP)
     {
-        point2 = *cntrWP[elem];
+        point2 = **elem;
 
         sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
 
@@ -79,14 +91,14 @@ void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cnt
 
     for (auto const& elem1 : contourTool)
     {
-        point2 = *cntrTool[elem1];
+        point2 = **elem1;
 
         sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
 
         point1 = point2;
     }
 
-    point2 = **std::next(cntrWP.begin(), *contourWP.begin());
+    point2 = **cntrWP.begin();
 
     sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
 
