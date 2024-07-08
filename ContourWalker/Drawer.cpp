@@ -67,38 +67,34 @@ void Drawer::drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm)
     text.setFillColor(sf::Color::Red);
 
     for (int i = 0; i < 2 * 1; ++i)
-        for (auto& elem : cm.spaceAreas[i])
+        for (auto& elem : cm.cavitys[i])
         {
-            auto point0 = ***elem.contourWP.begin();
+            Node point0 = Node();
+            Node point1 = Node();
 
-            for (auto const& point : elem.contourWP)
+            for (auto const& point : elem)
             {
-                Drawer().drawLine(point0, **point, window);
+                if (point0 == Node())
+                {
+                    point0 = **point;
+                    point1 = **point;
 
-                point0 = **point;
+                    continue;
+                }
+                Drawer().drawLine(point1, **point, window);
+
+                point1 = **point;
             }
 
+            Drawer().drawLine(point1, point0, window);
 
-            Drawer().drawLine(point0, ***elem.contourTool.begin(), window);
-
-            point0 = ***elem.contourTool.begin();
-
-            for (auto const& point : elem.contourTool)
-            {
-                Drawer().drawLine(point0, **point, window);
-
-                point0 = **point;
-            }
-
-            Drawer().drawLine(point0, ***elem.contourWP.begin(), window);
-
-            auto textPoint = Drawer().drawScale(point0);
+            auto textPoint = Drawer().drawScale(point1);
             text.setPosition(textPoint.first + 50, textPoint.second + 50);
             text.setString(std::to_string(elem.spaceSquare));
             window.draw(text);
 
             text.setPosition(textPoint.first + 50, textPoint.second);
-            text.setString(std::to_string(elem.detailWPId) + "." + std::to_string(elem.detailToolId) + '.' + std::to_string(elem.spaceAreaId));
+            text.setString(std::to_string(elem.detailWPId) + "." + std::to_string(elem.detailToolId) + '.' + std::to_string(elem.cavityId));
             window.draw(text);
         }
 };

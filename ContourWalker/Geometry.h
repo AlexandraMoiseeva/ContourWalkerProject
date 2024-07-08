@@ -8,6 +8,8 @@
 class DetailInit
 {
 protected:
+    std::vector<int> symAxisPoints;
+    std::vector<std::pair<int, Edge>> contactInit;
 
 public:
 
@@ -16,8 +18,7 @@ public:
     std::vector<Node> nodes;
     std::vector<Node*> contour;
 
-    std::vector<int> symAxisPoints;
-    std::vector<std::pair<int, Edge>> contactInit;
+    
 
     struct EdgeNode
     {
@@ -77,5 +78,5 @@ public:
     void contactInizialisation(std::vector<Tool>& details);
 
 
-    std::vector<SpaceArea> intersectionSpace(Tool& otherDetail);
+    std::vector<CM_Cavity2D> intersectionSpace(Tool& otherDetail);
 };

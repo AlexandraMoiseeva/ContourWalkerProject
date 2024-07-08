@@ -33,12 +33,9 @@ void add(Reader& rw, std::vector<Workpiece>& wpFigures)
 }
 
 
-CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int toolNumber, int wpNumber)
+CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int toolNumber, int wpNumber) : CM_CavityModel2D(toolNumber, wpNumber)
 {
-    toolFigures.reserve(toolNumber);
-    wpFigures.reserve(wpNumber);
-
-    spaceAreas = new std::vector<SpaceArea>[wpNumber * toolNumber];
+    cavitys = new std::vector<CM_Cavity2D>[wpNumber * toolNumber];
 
     if (toolNumber > 1)
         for (int i = 1; i <= toolNumber; ++i)

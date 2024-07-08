@@ -3,6 +3,13 @@
 CM_CavityModel2D::CM_CavityModel2D() = default;
 
 
+CM_CavityModel2D::CM_CavityModel2D(int toolNumber, int wpNumber)
+{
+    toolFigures.reserve(toolNumber);
+    wpFigures.reserve(wpNumber);
+};
+
+
 const std::vector<Tool>& CM_CavityModel2D::getToolFigures() const
 {
     return toolFigures;
@@ -21,13 +28,13 @@ void CM_CavityModel2D::findSpace()
     {
         for (int tool_it = 0; tool_it < toolFigures.size(); ++tool_it)
         {
-            spaceAreas[wp_it * wpFigures.size() + tool_it] = wpFigures[wp_it].intersectionSpace(toolFigures[tool_it]);
+            cavitys[wp_it * wpFigures.size() + tool_it] = wpFigures[wp_it].intersectionSpace(toolFigures[tool_it]);
         }
     }
 };
 
 
-void CM_CavityModel2D::trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas)
+void CM_CavityModel2D::trackSpaceArea(std::vector<CM_Cavity2D>*& lastSpaceAreas)
 {
     int maxId = 0;
 
@@ -35,18 +42,18 @@ void CM_CavityModel2D::trackSpaceArea(std::vector<SpaceArea>*& lastSpaceAreas)
     {
         for (int j = 0; j < toolFigures.size(); ++j)
         {
-            for (auto& elem1 : spaceAreas[i * 1 + j])
+            for (auto& elem1 : cavitys[i * 1 + j])
             {
                 for (auto& elem2 : lastSpaceAreas[i * wpFigures.size() + j])
                 {
-                    if (elem2.spaceAreaId > maxId)
-                        maxId = elem2.spaceAreaId;
+                    if (elem2.cavityId > maxId)
+                        maxId = elem2.cavityId;
 
                     elem1.colocationSpaceArea(elem2);
                 }
 
-                if (elem1.spaceAreaId == std::numeric_limits<int>::max())
-                    elem1.spaceAreaId = ++maxId;
+                if (elem1.cavityId == std::numeric_limits<int>::max())
+                    elem1.cavityId = ++maxId;
             }
         }
     }

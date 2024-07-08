@@ -16,7 +16,7 @@ int main()
     
     int time = 1;
 
-    std::string folder = "data_example/data(0)";
+    std::string folder = "data_example/data(6)";
 
     if (std::filesystem::exists("../return_" + folder))
     {
@@ -25,9 +25,9 @@ int main()
 
     std::filesystem::create_directory("../return_" + folder);
 
-    std::vector<SpaceArea>* lastSpaceAreas;
+    std::vector<CM_Cavity2D>* lastSpaceAreas;
 
-    lastSpaceAreas = new std::vector<SpaceArea>[2 * 1];
+    lastSpaceAreas = new std::vector<CM_Cavity2D>[2 * 1];
 
     int toolNumber = 2;
     int wpNumber = 1;
@@ -87,7 +87,7 @@ int main()
         cmObject.findSpace();
         
         cmObject.trackSpaceArea(lastSpaceAreas);
-        lastSpaceAreas = cmObject.spaceAreas;
+        lastSpaceAreas = cmObject.cavitys;
 
         Writer().write(folder + "/" + ss.str(), cmObject);
 

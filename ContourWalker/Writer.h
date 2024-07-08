@@ -19,5 +19,5 @@ public:
 
 private:
 
-    void writeInOut(std::ofstream& fileOutValue, SpaceArea elem, bool isSym = false);
+    void writeInOut(std::ofstream& fileOutValue, CM_Cavity2D elem, bool isSym = false);
 };

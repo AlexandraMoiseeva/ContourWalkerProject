@@ -107,33 +107,97 @@ public:
     void push_front(Node** nodeValue);
 
 
+    size_t size() const;
+
+
     std::deque<Node**>::iterator begin();
 
 
     std::deque<Node**>::iterator end();
+
+
+    std::deque<Node**>::const_iterator cbegin() const;
+
+
+    std::deque<Node**>::const_iterator cend() const;
 };
 
 
-class SpaceArea
+class CM_Cavity2D
 {
+protected:
+    Contour contourTool;
+    Contour contourWP;
+
 public:
     int detailToolId = 0;
     int detailWPId = 0;
 
-    int spaceAreaId = std::numeric_limits<int>::max();
+    int cavityId = std::numeric_limits<int>::max();
 
     double spaceSquare = 0;
 
-    Contour contourTool;
-    Contour contourWP;
+    class Iterator
+    {
+    private:
+        const CM_Cavity2D* cavity;
+        std::deque<Node**>::const_iterator currentIterator;
+        bool isVec1;
 
-    SpaceArea();
+    public:
+        Iterator(const CM_Cavity2D* cmc, bool isVec1) :
+            cavity(cmc), isVec1(isVec1), currentIterator(isVec1 ? cmc->contourWP.cbegin()
+                : cmc->contourTool.cend()) {};
 
-    SpaceArea(int detailWPIdValue, int detailToolIdValue, Contour contourWPValue, Contour contourToolValue);
 
+        Iterator& operator++()
+        {
+            ++currentIterator;
+            if (isVec1 && currentIterator == cavity->contourWP.cend())
+            {
+                isVec1 = false;
+                currentIterator = cavity->contourTool.cbegin();
+            }
+            return *this;
+        };
+
+
+        Node** operator*() const
+        {
+            return *currentIterator;
+        };
+
+
+        bool operator!=(const Iterator& other) const
+        {
+            return isVec1 != other.isVec1 ||
+                currentIterator != other.currentIterator;
+        };
+
+    };
+
+
+    Iterator begin() const
+    {
+        return Iterator(this, true);
+    };
+
+
+    Iterator end() const
+    {
+        return Iterator(this, false);
+    };
+
+    CM_Cavity2D();
+
+    
+    CM_Cavity2D(int detailWPIdValue, int detailToolIdValue, const Contour contourWPValue, const Contour contourToolValue);
+
+    
     void intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool);
 
-    bool colocationSpaceArea(SpaceArea& lastSpaceArea);
+
+    bool colocationSpaceArea(CM_Cavity2D& lastSpaceArea);
 
 private:
     bool isContourIntersection(Contour& otherDetail) const;

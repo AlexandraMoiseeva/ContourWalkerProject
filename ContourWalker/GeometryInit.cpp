@@ -50,6 +50,12 @@ void Contour::push_front(Node** nodeValue)
     if (endNode == std::numeric_limits<int>::max())
         endNode = beginNode;
     beginNode = 0;
+}
+
+
+size_t Contour::size() const
+{
+    return contour.size();
 };
 
 
@@ -65,14 +71,26 @@ std::deque<Node**>::iterator Contour::end()
 };
 
 
-SpaceArea::SpaceArea() = default;
+std::deque<Node**>::const_iterator Contour::cbegin() const
+{
+    return contour.cbegin();
+};
 
 
-SpaceArea::SpaceArea(int detailWPIdValue, int detailToolIdValue, Contour contourWPValue, Contour contourToolValue) :
+std::deque<Node**>::const_iterator Contour::cend() const
+{
+    return contour.cend();
+};
+
+
+CM_Cavity2D::CM_Cavity2D() = default;
+
+
+CM_Cavity2D::CM_Cavity2D(int detailWPIdValue, int detailToolIdValue, const Contour contourWPValue, const Contour contourToolValue) :
     detailToolId(detailToolIdValue), detailWPId(detailWPIdValue), contourTool(contourToolValue), contourWP(contourWPValue) {};
 
 
-void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool)
+void CM_Cavity2D::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool)
 {
     double sumSquare = 0.0f;
     Node point1;
@@ -106,14 +124,14 @@ void SpaceArea::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cnt
 };
 
 
-bool SpaceArea::colocationSpaceArea(SpaceArea& lastSpaceArea)
+bool CM_Cavity2D::colocationSpaceArea(CM_Cavity2D& lastSpaceArea)
 {
     if (lastSpaceArea.detailToolId != detailToolId || lastSpaceArea.detailWPId != detailWPId)
         return false;
 
     if (isContourIntersection(lastSpaceArea.contourTool))
     {
-        spaceAreaId = lastSpaceArea.spaceAreaId;
+        cavityId = lastSpaceArea.cavityId;
         return true;
     }
 
@@ -121,7 +139,7 @@ bool SpaceArea::colocationSpaceArea(SpaceArea& lastSpaceArea)
 };
 
 
-bool SpaceArea::isContourIntersection(Contour& otherDetail) const
+bool CM_Cavity2D::isContourIntersection(Contour& otherDetail) const
 {
 
     if (contourTool.beginNode > otherDetail.endNode && contourTool.endNode > contourTool.beginNode)
