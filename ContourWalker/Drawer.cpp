@@ -33,18 +33,20 @@ void Drawer::drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha)
 }
 
 
-void Drawer::drawContour(sf::RenderWindow& window, const DetailInit& cwt)
+void Drawer::drawContour(sf::RenderWindow& window, DetailInit& cwt)
 {
-    Node const* nodepoint1 = cwt.contour.back();
+    auto nodepoint1 = Node();
 
-    for (auto& it : cwt.contour)
+    for (const auto& it : cwt)
     {
-        Node const* nodepoint2 = it;
+        if (nodepoint1 == Node())
+            nodepoint1 = *it;
+        auto nodepoint2 = *it;
 
-        drawLine(*nodepoint1, *nodepoint2, window, 100);
+        drawLine(nodepoint1, nodepoint2, window, 100);
 
-        if (cwt.lineSym.a != std::numeric_limits<int>::max())
-            drawLine(cwt.lineSym.getSymNode(*nodepoint1), cwt.lineSym.getSymNode(*nodepoint2), window, 100);
+        if (cwt.lineSym.linetype != lineDirection::none)
+            drawLine(cwt.lineSym.getSymNode(nodepoint1), cwt.lineSym.getSymNode(nodepoint2), window, 100);
 
         nodepoint1 = nodepoint2;
 
@@ -52,7 +54,7 @@ void Drawer::drawContour(sf::RenderWindow& window, const DetailInit& cwt)
 };
 
 
-void Drawer::drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm)
+void Drawer::drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm) const
 {
     sf::Text text;
     sf::Font font;
@@ -67,10 +69,10 @@ void Drawer::drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm)
     text.setFillColor(sf::Color::Red);
 
     for (int i = 0; i < 2 * 1; ++i)
-        for (auto& elem : cm.cavitys[i])
+        for (auto const& elem : cm.cavitys[i])
         {
-            Node point0 = Node();
-            Node point1 = Node();
+            auto point0 = Node();
+            auto point1 = Node();
 
             for (auto const& point : elem)
             {
@@ -102,9 +104,9 @@ void Drawer::drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm)
 
 void Drawer::drawAll(sf::RenderWindow& window, CM_CavityModel2D& cm)
 {
-    for (const auto& elem : cm.getToolFigures())
+    for (auto& elem : cm.getToolFigures())
         drawContour(window, elem);
-    for (const auto& elem : cm.getWpFigures())
+    for (auto& elem : cm.getWpFigures())
         drawContour(window, elem);
 
     drawSpace(window, cm);

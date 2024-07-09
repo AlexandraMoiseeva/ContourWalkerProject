@@ -17,7 +17,7 @@ void Writer::write(std::string folder, CM_CavityModel2D& cm)
 }
 
 
-void Writer::writeInOut(std::ofstream& fileOutValue, CM_Cavity2D elem, bool isSym)
+void Writer::writeInOut(std::ofstream& fileOutValue, CM_Cavity2D& elem, bool isSym)
 {
     fileOutValue << "Tool" + std::to_string(elem.detailToolId) + "; "
         "Workpiece" + std::to_string(elem.detailWPId) + "; "

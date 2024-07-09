@@ -10,16 +10,14 @@ class DetailInit
 protected:
     std::vector<int> symAxisPoints;
     std::vector<std::pair<int, Edge>> contactInit;
+    std::vector<Node> nodes;
+    std::vector<Node*> contour;
 
 public:
 
     detailTypeValue detail_type;
 
-    std::vector<Node> nodes;
-    std::vector<Node*> contour;
-
-    
-
+  
     struct EdgeNode
     {
         Node** first_point = nullptr;
@@ -43,7 +41,16 @@ public:
     DetailInit(int nodeAmount, detailType detail_type_value, int detail_id_value);
 
 
+    std::vector<Node*>::iterator begin();
+
+
+    std::vector<Node*>::iterator end();
+
+
     void addNode(Node nodeValue);
+
+
+    Node& getNode(int nodeId);
 
 
     void addContour(int idNode);

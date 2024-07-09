@@ -10,13 +10,13 @@ CM_CavityModel2D::CM_CavityModel2D(int toolNumber, int wpNumber)
 };
 
 
-const std::vector<Tool>& CM_CavityModel2D::getToolFigures() const
+std::vector<Tool>& CM_CavityModel2D::getToolFigures()
 {
     return toolFigures;
 };
 
 
-const std::vector<Workpiece>& CM_CavityModel2D::getWpFigures() const
+std::vector<Workpiece>& CM_CavityModel2D::getWpFigures()
 {
     return wpFigures;
 };

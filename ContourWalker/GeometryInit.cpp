@@ -10,13 +10,13 @@ Node::Node(double xValue, double zValue) : coordinate(xValue, zValue) {};
 Node::Node(int idValue, int detailIdValue, double xValue, double zValue) : sourceObjInfo(detailIdValue, idValue), coordinate(xValue, zValue) {};
 
 
-bool Node::operator == (Node n)
+bool Node::operator == (Node n) const
 {
     return sourceObjInfo.mesh_obj_id == n.sourceObjInfo.mesh_obj_id && sourceObjInfo.source_body_id == n.sourceObjInfo.source_body_id;
 };
 
 
-bool Node::operator != (Node n)
+bool Node::operator != (Node n) const
 {
     return !(sourceObjInfo.mesh_obj_id == n.sourceObjInfo.mesh_obj_id && sourceObjInfo.source_body_id == n.sourceObjInfo.source_body_id);
 };
@@ -31,7 +31,10 @@ Edge::Edge(int n1Value, int n2Value) : n1(n1Value), n2(n2Value) {};
 Contour::Contour() = default;
 
 
-Contour::Contour(Node** nodeValue) : beginNode(0)
+Contour::Contour(Node** beginNodeIt) : beginNodeIt(beginNodeIt) {};
+
+
+Contour::Contour(Node** nodeValue, Node** beginNodeIt) : beginNode(nodeValue - beginNodeIt), beginNodeIt(beginNodeIt)
 {
     contour.push_back(nodeValue);
 };
@@ -40,7 +43,7 @@ Contour::Contour(Node** nodeValue) : beginNode(0)
 void Contour::push_back(Node** nodeValue)
 {
     contour.push_back(nodeValue);
-    endNode = 0;
+    endNode = nodeValue - beginNodeIt;
 };
 
 
@@ -49,7 +52,7 @@ void Contour::push_front(Node** nodeValue)
     contour.push_front(nodeValue);
     if (endNode == std::numeric_limits<int>::max())
         endNode = beginNode;
-    beginNode = 0;
+    beginNode = nodeValue - beginNodeIt;
 }
 
 
@@ -90,35 +93,32 @@ CM_Cavity2D::CM_Cavity2D(int detailWPIdValue, int detailToolIdValue, const Conto
     detailToolId(detailToolIdValue), detailWPId(detailWPIdValue), contourTool(contourToolValue), contourWP(contourWPValue) {};
 
 
-void CM_Cavity2D::intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool)
+void CM_Cavity2D::intersection()
 {
     double sumSquare = 0.0f;
+
+    Node point0;
     Node point1;
     Node point2;
 
-    point1 = **cntrWP.begin();
-
-    for (auto const& elem : contourWP)
+    for (auto const& point : *this)
     {
-        point2 = **elem;
+        if (point0 == Node())
+        {
+            point0 = **point;
+            point1 = **point;
+
+            continue;
+        }
+
+        point2 = **point;
 
         sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
 
         point1 = point2;
     }
 
-    for (auto const& elem1 : contourTool)
-    {
-        point2 = **elem1;
-
-        sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
-
-        point1 = point2;
-    }
-
-    point2 = **cntrWP.begin();
-
-    sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
+    sumSquare += 0.5 * (point1.coordinate.x * point0.coordinate.z - point0.coordinate.x * point0.coordinate.z);
 
     spaceSquare = abs(sumSquare);
 };
@@ -141,7 +141,6 @@ bool CM_Cavity2D::colocationSpaceArea(CM_Cavity2D& lastSpaceArea)
 
 bool CM_Cavity2D::isContourIntersection(Contour& otherDetail) const
 {
-
     if (contourTool.beginNode > otherDetail.endNode && contourTool.endNode > contourTool.beginNode)
         return false;
     if (otherDetail.beginNode > contourTool.endNode && otherDetail.endNode > otherDetail.beginNode)
@@ -163,6 +162,8 @@ LineSymStruct::LineSymStruct(double xzSum, double xSum, double zSum, double x2Su
     }
     else
     {
+        linetype = lineDirection::other;
+
         a = (n * xzSum - xSum * zSum) / (n * x2Sum - xSum * xSum);
         b = (zSum - a * xSum) / n;
     }

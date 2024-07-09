@@ -14,10 +14,10 @@ private:
     void drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha = 255);
 
 
-    void drawContour(sf::RenderWindow& window, const DetailInit& cwt);
+    void drawContour(sf::RenderWindow& window, DetailInit& cwt);
 
 
-    void drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm);
+    void drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm) const;
 
  public:
 

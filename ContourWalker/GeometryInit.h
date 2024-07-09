@@ -4,7 +4,7 @@
 #include <deque>
 #include <string>
 
-const enum class lineDirection { vertical, other };
+const enum class lineDirection { none, vertical, other };
 
 
 const enum class detailType { tool, workpiece };
@@ -66,10 +66,10 @@ public:
     Node(int idValue, int detailIdValue, double xValue, double zValue);
 
 
-    bool operator == (Node n);
+    bool operator == (Node n) const;
 
 
-    bool operator != (Node n);
+    bool operator != (Node n) const;
 };
 
 
@@ -91,6 +91,8 @@ class Contour
 private:
     std::deque<Node**> contour = {};
 
+    Node** beginNodeIt = nullptr;
+
 public:
     int beginNode = std::numeric_limits<int>::max();
     int endNode = std::numeric_limits<int>::max();
@@ -98,7 +100,10 @@ public:
     Contour();
 
 
-    Contour(Node** nodeValue);
+    Contour(Node** beginNodeIt);
+
+
+    Contour(Node** nodeValue, Node** beginNodeIt);
 
 
     void push_back(Node** nodeValue);
@@ -194,7 +199,7 @@ public:
     CM_Cavity2D(int detailWPIdValue, int detailToolIdValue, const Contour contourWPValue, const Contour contourToolValue);
 
     
-    void intersection(std::vector<Node*>& cntrWP, std::vector<Node*>& cntrTool);
+    void intersection();
 
 
     bool colocationSpaceArea(CM_Cavity2D& lastSpaceArea);
@@ -207,11 +212,12 @@ private:
 struct LineSymStruct
 {
 private:
-    lineDirection linetype = lineDirection::other;
-public:
-
+    
     double a = std::numeric_limits<int>::max();
     double b = std::numeric_limits<int>::max();
+
+public:
+    lineDirection linetype = lineDirection::none;
 
 
     LineSymStruct();

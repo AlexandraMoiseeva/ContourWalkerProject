@@ -126,8 +126,6 @@ Reader::Reader(std::string const filePathValue, int detailTypeValue)
                 break;
             }
         }
-        //”дал€ем последний элемент в контуре, т.к. они повтор€ютс€
-        contour.pop_back();
     }
     file.close();
 };

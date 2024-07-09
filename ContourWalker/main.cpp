@@ -16,7 +16,7 @@ int main()
     
     int time = 1;
 
-    std::string folder = "data_example/data(6)";
+    std::string folder = "data_example/data(8)";
 
     if (std::filesystem::exists("../return_" + folder))
     {
@@ -97,7 +97,7 @@ int main()
 
         window.display();
 
-        if (time++ == 70)
+        if (time++ == 90)
             time = 1;
     }
 

@@ -18,10 +18,10 @@ public:
     std::vector<CM_Cavity2D>* cavitys = nullptr;
 
 
-    const std::vector<Tool>& getToolFigures() const;
+    std::vector<Tool>& getToolFigures();
 
 
-    const std::vector<Workpiece>& getWpFigures() const;
+    std::vector<Workpiece>& getWpFigures();
 
 
     void findSpace();
