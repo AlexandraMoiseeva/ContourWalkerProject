@@ -1,13 +1,13 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include <deque>
 #include <string>
 
-const enum class lineDirection { none, vertical, other };
+const enum class lineDirection { none, vertical, other }; // const не нужен
 
 
-const enum class detailType { tool, workpiece };
+const enum class detailType { tool, workpiece }; // const не нужен
 
 struct detailTypeValue
 {
@@ -26,7 +26,7 @@ public:
 class Node
 {
 public:
-    struct SourceObjInfo {
+    struct SourceObjInfo { // Вынести определение структуры мз класса.
         SourceObjInfo() = default;
 
         SourceObjInfo(int source_body_id, int mesh_obj_id) noexcept
@@ -45,12 +45,12 @@ public:
 
     bool isSym = false;
 
-    struct Coordinate
+    struct Coordinate // Вынести определение структуры мз класса.
     {
         double x = 0;
         double z = 0;
 
-        Coordinate() = default;
+        Coordinate() = default; // Простой агрегат. Нужны ли тут конструкторы?
 
 
         Coordinate(double xValue, double zValue) : x(xValue), z(zValue) {};
@@ -76,10 +76,10 @@ public:
 class Edge
 {
 public:
-    int n1 = 0;
+    int n1 = 0; // Хранить указатели на узлы
     int n2 = 0;
 
-    Edge();
+    Edge(); // Простой агрегат. Нужны ли тут конструкторы?
 
 
     Edge(int n1Value, int n2Value);
@@ -89,7 +89,7 @@ public:
 class Contour
 {
 private:
-    std::deque<Node**> contour = {};
+    std::deque<Node**> contour = {}; // Здесь и далее - Указатель на указатель???
 
     Node** beginNodeIt = nullptr;
 
@@ -127,12 +127,18 @@ public:
     std::deque<Node**>::const_iterator cend() const;
 };
 
-
+/*
+Заготовка, инструмент, полость - три типа сущностей с множеством общих свойств.
+Все состоят из узлов, имеют контур и т.д. 
+Убрать все общее в базовый класс, продумать иерархию наследования (из коробки получим устранение замечания ниже).
+В частных классах реализовать уникальные методы для конкретного класса.
+Обновить диаграмму классов.
+*/
 class CM_Cavity2D
 {
 protected:
-    Contour contourTool;
-    Contour contourWP;
+    Contour contourTool; // Помимо Контуров заготовки и инструмента, образующих полость, необходимо хранить внутри объекта
+    Contour contourWP;   // полости его узлы и полный контур
 
 public:
     int detailToolId = 0;

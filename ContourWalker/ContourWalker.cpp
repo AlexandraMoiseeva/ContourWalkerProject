@@ -1,6 +1,6 @@
 #include "ContourWalker.h"
 
-CM_CavityModel2D::CM_CavityModel2D() = default;
+CM_CavityModel2D::CM_CavityModel2D() = default; // определение конструктора по умолчанию, который ничего не делает, лучше оставлять в хидере
 
 
 CM_CavityModel2D::CM_CavityModel2D(int toolNumber, int wpNumber)

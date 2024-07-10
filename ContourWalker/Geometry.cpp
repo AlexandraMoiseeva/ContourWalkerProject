@@ -1,4 +1,4 @@
-#include "Geometry.h"
+﻿#include "Geometry.h"
 #include <stdexcept>
 
 
@@ -123,7 +123,8 @@ void Workpiece::contactInizialisation(std::vector<Tool>& details)
     }
 };
 
-
+// Главный код нахождение полостей лучше перенести в CM_CavityModel2D
+// Это не обязанность объекта типа Workpiece
 std::vector<CM_Cavity2D> Workpiece::intersectionSpace(Tool& otherDetail)
 {
     std::vector<CM_Cavity2D> cavitys = {};

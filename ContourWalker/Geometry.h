@@ -1,21 +1,21 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include <string>
 
 #include "GeometryInit.h"
 
-class DetailInit
+class DetailInit // Назвать просто Body
 {
 protected:
     std::vector<int> symAxisPoints;
     std::vector<std::pair<int, Edge>> contactInit;
     std::vector<Node> nodes;
-    std::vector<Node*> contour;
+    std::vector<Node*> contour; // В соседнем файле лежит отдельная сущность с названием Contour. Лучше использовать ее.
 
 public:
 
-    detailTypeValue detail_type;
+    detailTypeValue detail_type; // поля id и type лучше хранить как обычные члены класса. префикс detail не нужен
 
   
     struct EdgeNode
@@ -23,7 +23,7 @@ public:
         Node** first_point = nullptr;
         Node** second_point = nullptr;
 
-        EdgeNode() = default;
+        EdgeNode() = default; // Простой агрегат. Нужны ли тут конструкторы?
 
 
         EdgeNode(Node** first_point_value, Node** second_point_value)
