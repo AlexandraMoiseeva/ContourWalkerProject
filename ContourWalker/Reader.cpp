@@ -1,8 +1,5 @@
 #include "Reader.h"
 
-Reader::Reader() = default;
-
-
 Reader::Reader(std::string const filePathValue, int detailTypeValue)
 {
 
@@ -92,7 +89,7 @@ Reader::Reader(std::string const filePathValue, int detailTypeValue)
                         if (indexnum == 4)
                         {
                             n2 = std::stoi(str);
-                            contactInit[id] = std::make_pair(toolNumber, Edge(n1, n2));
+                            contactInit[id] = std::make_pair(toolNumber, Edge({ n1, n2 }));
                         }
 
                         ++indexnum;

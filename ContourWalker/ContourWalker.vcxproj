@@ -131,8 +131,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ContourWalker.cpp" />
-    <ClCompile Include="ContourWalkerDRW.cpp" />
+    <ClCompile Include="CM_CavityModel2D.cpp" />
+    <ClCompile Include="CM_CavityModel2D_FromFile.cpp" />
     <ClCompile Include="Drawer.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GeometryInit.cpp" />
@@ -142,8 +142,8 @@
     <ClCompile Include="Writer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ContourWalker.h" />
-    <ClInclude Include="ContourWalkerDRW.h" />
+    <ClInclude Include="CM_CavityModel2D.h" />
+    <ClInclude Include="CM_CavityModel2D_FromFile.h" />
     <ClInclude Include="Drawer.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Reader.h" />

@@ -1,6 +1,6 @@
 #pragma once
 #include "Geometry.h"
-#include "ContourWalkerDRW.h" 
+#include "CM_CavityModel2D_FromFile.h" 
 
 #include <SFML/Graphics.hpp>
 
@@ -14,7 +14,7 @@ private:
     void drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha = 255);
 
 
-    void drawContour(sf::RenderWindow& window, DetailInit& cwt);
+    void drawContour(sf::RenderWindow& window, Tool& cwt);
 
 
     void drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm) const;
