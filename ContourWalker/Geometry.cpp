@@ -1,36 +1,35 @@
 ﻿#include "Geometry.h"
 #include <stdexcept>
+#include <set>
 
 
-DetailInit::DetailInit(int nodeAmount, detailType detail_type_value, int detail_id_value)
-    : detail_type(detail_type_value, detail_id_value)
+cavity2d::Body::Body(int node_amount, detailType type_value, int id_value)
+    : type(type_value), id(id_value)
 {
-    nodes.reserve(nodeAmount);
-    contour.reserve(nodeAmount);
-    contactInit.reserve(nodeAmount);
-    contact.reserve(nodeAmount);
+    nodes.reserve(node_amount);
+    contour.reserve(node_amount + 1);
 };
 
 
-std::vector<Node*>::iterator DetailInit::begin()
+std::vector<Node*>::iterator cavity2d::Body::begin()
 {
     return contour.begin();
 };
 
 
-std::vector<Node*>::iterator DetailInit::end()
+std::vector<Node*>::iterator cavity2d::Body::end()
 {
     return contour.end();
 };
 
 
-void DetailInit::addNode(Node nodeValue)
+void cavity2d::Body::addNode(Node nodeValue)
 {
     nodes.push_back(nodeValue);
 };
 
 
-Node& DetailInit::getNode(int nodeId)
+Node& cavity2d::Body::getNode(int nodeId)
 {
     if ((nodeId > -1) && (nodeId < nodes.size()))
         return nodes[nodeId];
@@ -41,31 +40,31 @@ Node& DetailInit::getNode(int nodeId)
 };
 
 
-void DetailInit::addContour(int idNode)
+void cavity2d::Body::addContour(int idNode)
 {
     contour.push_back(&nodes[idNode]);
 };
 
 
-void DetailInit::addSymAxisPoint(int point)
+void cavity2d::Tool::addSymAxisPoint(int point)
 {
     symAxisPoints.push_back(point);
 };
 
 
-void DetailInit::addContact(std::pair<int, Edge> contactPoint)
+void cavity2d::Tool::addContact(std::pair<int, Edge> contactPoint)
 {
     contactInit.push_back(contactPoint);
 };
 
 
-void DetailInit::inizialisation()
+void cavity2d::Tool::inizialisation()
 {
     symAxisInizialisation(symAxisPoints);
 };
 
 
-void DetailInit::symAxisInizialisation(std::vector<int>& symAxisPoints)
+void cavity2d::Tool::symAxisInizialisation(std::vector<int>& symAxisPoints)
 {
     if (symAxisPoints.empty())
         return;
@@ -90,13 +89,86 @@ void DetailInit::symAxisInizialisation(std::vector<int>& symAxisPoints)
 };
 
 
-Tool::Tool(int nodeAmount, detailType detail_type_value, int detail_id_value) : DetailInit(nodeAmount, detail_type_value, detail_id_value) {};
+cavity2d::Tool::Tool(int nodeAmount, int detail_id_value) : Tool(nodeAmount, detailType::tool, detail_id_value) {};
 
 
-Workpiece::Workpiece(int nodeAmount, detailType detail_type_value, int detail_id_value) : DetailInit(nodeAmount, detail_type_value, detail_id_value) {};
+cavity2d::Tool::Tool(int nodeAmount, detailType detail_type_value, int detail_id_value) : Body(nodeAmount, detail_type_value, detail_id_value)
+{
+    contactInit.reserve(nodeAmount);
+    contact.reserve(nodeAmount);
+};
 
 
-void Workpiece::contactInizialisation(std::vector<Tool>& details)
+cavity2d::CM_Cavity2D::CM_Cavity2D(const Contour& contourWPValue, const Contour& contourToolValue) :
+    Body(contourToolValue.size() + contourWPValue.size(), detailType::cavity, -1),
+    contourTool(contourToolValue), contourWP(contourWPValue) 
+{
+    for (auto const& elem : *this)
+        nodes.push_back(*elem);
+
+    for (auto const& elem : *this)
+        contour.push_back(elem);
+};
+
+
+void cavity2d::CM_Cavity2D::intersection()
+{
+    double sumSquare = 0.0f;
+
+    Node point0;
+    Node point1;
+    Node point2;
+
+    for (auto const& point : *this)
+    {
+        if (point0 == Node())
+        {
+            point0 = *point;
+            point1 = *point;
+
+            continue;
+        }
+
+        point2 = *point;
+
+        sumSquare += 0.5 * (point1.coordinate.x * point2.coordinate.z - point2.coordinate.x * point1.coordinate.z);
+
+        point1 = point2;
+    }
+
+    sumSquare += 0.5 * (point1.coordinate.x * point0.coordinate.z - point0.coordinate.x * point0.coordinate.z);
+
+    spaceSquare = abs(sumSquare);
+};
+
+
+bool cavity2d::CM_Cavity2D::colocationSpaceArea(CM_Cavity2D& lastSpaceArea)
+{
+    if (isContourIntersection(lastSpaceArea.contourTool))
+    {
+        id = lastSpaceArea.id;
+        return true;
+    }
+
+    return false;
+};
+
+
+bool cavity2d::CM_Cavity2D::isContourIntersection(Contour& otherDetail) const
+{
+    std::set<const Node*> set1(contour.cbegin(), contour.cend());
+
+    for(const auto& elem : otherDetail)
+        if (set1.count(elem))
+            return true;
+    return false;
+};
+
+
+cavity2d::Workpiece::Workpiece(int nodeAmount, int detail_id_value) : Tool(nodeAmount, detailType::workpiece, detail_id_value) {};
+
+
+void cavity2d::Workpiece::contactInizialisation(std::vector<Tool>& details)
 {
     for (auto const& elem : contactInit)
     {
@@ -122,169 +194,3 @@ void Workpiece::contactInizialisation(std::vector<Tool>& details)
         }
     }
 };
-
-// Главный код нахождение полостей лучше перенести в CM_CavityModel2D
-// Это не обязанность объекта типа Workpiece
-std::vector<CM_Cavity2D> Workpiece::intersectionSpace(Tool& otherDetail)
-{
-    std::vector<CM_Cavity2D> cavitys = {};
-    Contour contourWP;
-    Contour contourTool;
-    int detailTypeValue = otherDetail.detail_type.detail_id;
-    bool StartSpaceContour = false;
-    int cavityCount = 0;
-    int dopusk = 0;
-
-    for (auto it = contour.begin() + 1; it != contour.end(); ++it)
-    {
-        if (std::next(contactInit.begin(), (*it)->sourceObjInfo.mesh_obj_id)->first != detailTypeValue && !(*it)->isSym)
-        {
-            if (StartSpaceContour == false)
-            {
-                if (contactInit[(*std::prev(it))->sourceObjInfo.mesh_obj_id].first == detailTypeValue)
-                {
-                    contourWP = Contour(&*(it - 1), &*contour.begin());
-                    contourTool = Contour(contact[(*(it - 1))->sourceObjInfo.mesh_obj_id].second_point, &*otherDetail.begin());
-                }
-                else
-                    if ((*(it - 1))->isSym)
-                    {
-                        contourWP = Contour(&*(it - 1), &*contour.begin());
-                        contourTool = Contour(&*otherDetail.begin());
-                    }
-                    else
-                    {
-                        ++dopusk;
-                        continue;
-                    }
-
-                StartSpaceContour = true;
-                ++cavityCount;
-            }
-            else
-            {
-                contourWP.push_back(&*(it - 1));
-            }
-        }
-        if (contactInit[(*it)->sourceObjInfo.mesh_obj_id].first == detailTypeValue || (*it)->isSym)
-        {
-            if (StartSpaceContour == true)
-            {
-                StartSpaceContour = false;
-
-                contourWP.push_back(&*(it - 1));
-                contourWP.push_back(&*it);
-
-                if (std::next(contactInit.begin(), (*it)->sourceObjInfo.mesh_obj_id)->first == detailTypeValue)
-                {
-                    if (contourTool.beginNode != std::numeric_limits<int>::max())
-                    {
-                        Node** it2 = *contourTool.begin();
-                        Node** it3 = contact[(*it)->sourceObjInfo.mesh_obj_id].first_point;
-
-                        for (int it1 = 1; it1 != otherDetail.end() - otherDetail.begin(); ++it1)
-                        {
-                            contourTool.push_front((it2 - &*otherDetail.begin()) >= it1 ? (it2 - it1)
-                                : &*(otherDetail.end() - (it1 - (it2 - &*otherDetail.begin()))));
-                            if (*contourTool.begin() == it3)
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        Node** it1 = contact[(*it)->sourceObjInfo.mesh_obj_id].first_point;
-
-                        contourTool.push_front(it1);
-
-                        while (it1 - &*otherDetail.begin() != otherDetail.end() - otherDetail.begin())
-                        {
-                            ++it1;
-                            contourTool.push_back(it1);
-                            if ((*it1)->isSym)
-                                break;
-                        }
-                    }
-
-                    cavitys.emplace_back(
-                        detail_type.detail_id,
-                        detailTypeValue,
-                        contourWP,
-                        contourTool);
-                }
-                else
-                {
-                    if (contourTool.beginNode != std::numeric_limits<int>::max())
-                    {
-                        Node** it1 = *contourTool.begin();
-
-                        contourTool.push_back(it1);
-
-                        while (it1 - &*otherDetail.begin() != 0)
-                        {
-                            --it1;
-                            contourTool.push_front(it1);
-                            if ((*it1)->isSym)
-                                break;
-                        }
-
-                        cavitys.emplace_back(
-                            detail_type.detail_id,
-                            detailTypeValue,
-                            contourWP,
-                            contourTool);
-                    }
-                    else
-                    {
-                        --cavityCount;
-                    }
-                }
-            }
-        }
-    }
-
-    if (cavityCount == 0)
-        return {};
-
-    if (dopusk != 0)
-    {
-        for (auto it = contour.begin(); it != contour.begin() + dopusk + 1; ++it)
-        {
-            contourWP.push_back(&*it);
-        }
-
-        Node** it2 = *contourTool.begin();
-        Node** it3 = contact[(*(contour.begin() + dopusk + 1))->sourceObjInfo.mesh_obj_id].first_point;
-
-        for (int it1 = 1; it1 != otherDetail.end() - otherDetail.begin(); ++it1)
-        {
-            contourTool.push_front((it2 - &*otherDetail.begin()) >= it1 ? (it2 - it1)
-                : &*(otherDetail.end() - (it1 - (it2 - &*otherDetail.begin()))));
-            if (*contourTool.begin() == it3)
-                break;
-        }
-
-        cavitys.emplace_back(
-            detail_type.detail_id,
-            detailTypeValue,
-            contourWP,
-            contourTool);
-    }
-
-    std::vector<CM_Cavity2D>::iterator maxSquareIterator = std::prev(cavitys.end());
-    double maxSquare = 0;
-
-    for (std::vector<CM_Cavity2D>::iterator elem = cavitys.begin(); elem != cavitys.end(); ++elem)
-    {
-        elem->intersection();
-
-        if (elem->spaceSquare > maxSquare)
-        {
-            maxSquare = elem->spaceSquare;
-            maxSquareIterator = elem;
-        }
-    }
-
-    cavitys.erase(maxSquareIterator);
-
-    return cavitys;
-}

@@ -33,7 +33,7 @@ void Drawer::drawLine(Node n1, Node n2, sf::RenderWindow& window, int alpha)
 }
 
 
-void Drawer::drawContour(sf::RenderWindow& window, DetailInit& cwt)
+void Drawer::drawContour(sf::RenderWindow& window, Tool& cwt)
 {
     auto nodepoint1 = Node();
 
@@ -49,7 +49,6 @@ void Drawer::drawContour(sf::RenderWindow& window, DetailInit& cwt)
             drawLine(cwt.lineSym.getSymNode(nodepoint1), cwt.lineSym.getSymNode(nodepoint2), window, 100);
 
         nodepoint1 = nodepoint2;
-
     }
 };
 
@@ -68,45 +67,45 @@ void Drawer::drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm) const
     text.setCharacterSize(16);
     text.setFillColor(sf::Color::Red);
 
-    for (int i = 0; i < 2 * 1; ++i)
-        for (auto const& elem : cm.cavitys[i])
+    for (auto const& elem : cm.cavitys)
+    {
+        auto point0 = Node();
+        auto point1 = Node();
+
+        for (auto const& point : elem)
         {
-            auto point0 = Node();
-            auto point1 = Node();
-
-            for (auto const& point : elem)
+            if (point0 == Node())
             {
-                if (point0 == Node())
-                {
-                    point0 = **point;
-                    point1 = **point;
+                point0 = *point;
+                point1 = *point;
 
-                    continue;
-                }
-                Drawer().drawLine(point1, **point, window);
-
-                point1 = **point;
+                continue;
             }
+            Drawer().drawLine(point1, *point, window);
 
-            Drawer().drawLine(point1, point0, window);
-
-            auto textPoint = Drawer().drawScale(point1);
-            text.setPosition(textPoint.first + 50, textPoint.second + 50);
-            text.setString(std::to_string(elem.spaceSquare));
-            window.draw(text);
-
-            text.setPosition(textPoint.first + 50, textPoint.second);
-            text.setString(std::to_string(elem.detailWPId) + "." + std::to_string(elem.detailToolId) + '.' + std::to_string(elem.cavityId));
-            window.draw(text);
+            point1 = *point;
         }
+
+        Drawer().drawLine(point1, point0, window);
+
+        auto textPoint = Drawer().drawScale(point1);
+        text.setPosition(textPoint.first + 50, textPoint.second + 50);
+        text.setString(std::to_string(elem.spaceSquare));
+        window.draw(text);
+
+        text.setPosition(textPoint.first + 50, textPoint.second);
+        text.setString(std::to_string(point0.sourceObjInfo.source_body_id) + "."
+            + std::to_string(elem.id));
+        window.draw(text);
+    }
 };
 
 
 void Drawer::drawAll(sf::RenderWindow& window, CM_CavityModel2D& cm)
 {
-    for (auto& elem : cm.getToolFigures())
+    for (auto& elem : cm.gettools())
         drawContour(window, elem);
-    for (auto& elem : cm.getWpFigures())
+    for (auto& elem : cm.getworkpieces())
         drawContour(window, elem);
 
     drawSpace(window, cm);

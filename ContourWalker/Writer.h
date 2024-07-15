@@ -6,13 +6,13 @@
 #include <fstream>
 #include <iostream>
 
-#include "ContourWalkerDRW.h"
+#include "CM_CavityModel2D_FromFile.h"
 
 class Writer
 {
 public:
 
-    Writer();
+    Writer() = default;
 
 
     void write(std::string folder, CM_CavityModel2D& cm);

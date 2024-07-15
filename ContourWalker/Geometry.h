@@ -5,85 +5,174 @@
 
 #include "GeometryInit.h"
 
-class DetailInit // Назвать просто Body
+struct EdgeNode
 {
-protected:
-    std::vector<int> symAxisPoints;
-    std::vector<std::pair<int, Edge>> contactInit;
-    std::vector<Node> nodes;
-    std::vector<Node*> contour; // В соседнем файле лежит отдельная сущность с названием Contour. Лучше использовать ее.
+    Node** first_point = nullptr;
+    Node** second_point = nullptr;
 
-public:
+    EdgeNode() = default;
 
-    detailTypeValue detail_type; // поля id и type лучше хранить как обычные члены класса. префикс detail не нужен
 
-  
-    struct EdgeNode
+    EdgeNode(Node** first_point_value, Node** second_point_value)
+        : first_point(first_point_value), second_point(second_point_value) {};
+
+};
+
+
+namespace cavity2d
+{
+    class Body
     {
-        Node** first_point = nullptr;
-        Node** second_point = nullptr;
+    protected:
+        std::vector<Node> nodes;
+        Contour contour;
 
-        EdgeNode() = default; // Простой агрегат. Нужны ли тут конструкторы?
+    public:
+
+        detailType type = detailType::tool;
+        int id = -1;
+
+        Body() = default;
 
 
-        EdgeNode(Node** first_point_value, Node** second_point_value)
-            : first_point(first_point_value), second_point(second_point_value) {};
+        Body(int node_amount, detailType type_value, int id_value);
 
+
+        std::vector<Node*>::iterator begin();
+
+
+        std::vector<Node*>::iterator end();
+
+
+        void addNode(Node node_value);
+
+
+        Node& getNode(int node_id);
+
+
+        void addContour(int id_node);
     };
 
 
-    std::vector<EdgeNode> contact;
+    class Tool : public Body
+    {
+    protected:
+        Tool(int nodeAmount, detailType detail_type_value, int detail_id_value);
+
+        std::vector<int> symAxisPoints;
+
+    public:
+        std::vector<std::pair<int, Edge>> contactInit;
+        std::vector<EdgeNode> contact;
 
 
-    LineSymStruct lineSym;
+        LineSymStruct lineSym;
 
 
-    DetailInit(int nodeAmount, detailType detail_type_value, int detail_id_value);
+        Tool(int nodeAmount, int detail_id_value);
 
 
-    std::vector<Node*>::iterator begin();
+        void addSymAxisPoint(int point);
 
 
-    std::vector<Node*>::iterator end();
+        void addContact(std::pair<int, Edge> contact_init);
 
 
-    void addNode(Node nodeValue);
+        void inizialisation();
+
+    protected:
+        void symAxisInizialisation(std::vector<int>& symAxisPoints);
+    };
 
 
-    Node& getNode(int nodeId);
+    /*
+    Заготовка, инструмент, полость - три типа сущностей с множеством общих свойств.
+    Все состоят из узлов, имеют контур и т.д.
+    Убрать все общее в базовый класс, продумать иерархию наследования (из коробки получим устранение замечания ниже).
+    В частных классах реализовать уникальные методы для конкретного класса.
+    Обновить диаграмму классов.
+    */
+    class CM_Cavity2D : public Body
+    {
+    private:
+        Contour contourTool;
+        Contour contourWP;
+
+    public:
+        double spaceSquare = 0;
+
+        class Iterator
+        {
+        private:
+            const CM_Cavity2D* cavity;
+            std::vector<Node*>::const_iterator currentIterator;
+            bool isVec1;
+
+        public:
+            Iterator(const CM_Cavity2D* cmc, bool isVec1) :
+                cavity(cmc), isVec1(isVec1), currentIterator(isVec1 ? cmc->contourWP.cbegin()
+                    : cmc->contourTool.cend()) {};
 
 
-    void addContour(int idNode);
+            Iterator& operator++()
+            {
+                ++currentIterator;
+                if (isVec1 && currentIterator == cavity->contourWP.cend())
+                {
+                    isVec1 = false;
+                    currentIterator = cavity->contourTool.cbegin();
+                }
+                return *this;
+            };
 
 
-    void addSymAxisPoint(int point);
+            Node* operator*() const
+            {
+                return *currentIterator;
+            };
 
 
-    void addContact(std::pair<int, Edge> contactInit);
+            bool operator!=(const Iterator& other) const
+            {
+                return isVec1 != other.isVec1 ||
+                    currentIterator != other.currentIterator;
+            };
+
+        };
 
 
-    void inizialisation();
-
-protected:
-
-    void symAxisInizialisation(std::vector<int>& symAxisPoints);
-};
-class Tool : public DetailInit
-{
-public:
-    Tool(int nodeAmount, detailType detail_type_value, int detail_id_value);
-};
+        Iterator begin() const
+        {
+            return Iterator(this, true);
+        };
 
 
-class Workpiece : public DetailInit
-{
-public:
-
-    Workpiece(int nodeAmount, detailType detail_type_value, int detail_id_value);
-
-
-    void contactInizialisation(std::vector<Tool>& details);
+        Iterator end() const
+        {
+            return Iterator(this, false);
+        };
 
 
-    std::vector<CM_Cavity2D> intersectionSpace(Tool& otherDetail);
-};
+        CM_Cavity2D(const Contour& contourWPValue, const Contour& contourToolValue);
+
+
+        void intersection();
+
+
+        bool colocationSpaceArea(CM_Cavity2D& lastSpaceArea);
+
+    private:
+        bool isContourIntersection(Contour& otherDetail) const;
+    };
+
+
+    class Workpiece : public Tool
+    {
+    public:
+
+        Workpiece(int nodeAmount, int detail_id_value);
+
+
+        void contactInizialisation(std::vector<Tool>& details);
+    };
+}

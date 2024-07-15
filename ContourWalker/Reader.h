@@ -36,7 +36,7 @@ public:
     std::vector<std::pair<int, Edge>> contactInit = {};
     
 
-    Reader();
+    Reader() = default;
 
 
     Reader(std::string filePathValue, int detailTypeValue = 0);

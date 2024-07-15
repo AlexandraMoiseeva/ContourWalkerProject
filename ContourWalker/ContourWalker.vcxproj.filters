@@ -27,7 +27,7 @@
     <ClCompile Include="GeometryInit.h">
       <Filter>Файлы заголовков</Filter>
     </ClCompile>
-    <ClCompile Include="ContourWalkerDRW.cpp">
+    <ClCompile Include="CM_CavityModel2D_FromFile.cpp">
       <Filter>Файлы ресурсов\DrawerReader</Filter>
     </ClCompile>
     <ClCompile Include="Drawer.cpp">
@@ -45,12 +45,12 @@
     <ClCompile Include="Writer.cpp">
       <Filter>Файлы ресурсов\DrawerReader</Filter>
     </ClCompile>
-    <ClCompile Include="ContourWalker.cpp">
+    <ClCompile Include="CM_CavityModel2D.cpp">
       <Filter>Файлы ресурсов</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ContourWalker.h">
+    <ClInclude Include="CM_CavityModel2D.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
@@ -65,7 +65,7 @@
     <ClInclude Include="Writer.h">
       <Filter>Файлы заголовков\DrawerReader</Filter>
     </ClInclude>
-    <ClInclude Include="ContourWalkerDRW.h">
+    <ClInclude Include="CM_CavityModel2D_FromFile.h">
       <Filter>Файлы заголовков\DrawerReader</Filter>
     </ClInclude>
   </ItemGroup>
