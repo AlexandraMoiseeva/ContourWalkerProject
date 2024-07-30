@@ -1,11 +1,9 @@
 #include "Reader.h"
 
-Reader::Reader(std::string const filePathValue, int detailTypeValue)
+Reader::Reader(std::string const filePath, int source_id) : source_id(source_id)
 {
-
-    detailTypeNum = detailTypeValue;
     std::ifstream file;
-    file.open(filePathValue);
+    file.open(filePath);
 
     ReaderSettingEnum readerSetting = ReaderSettingEnum::skip;
 
@@ -43,9 +41,10 @@ Reader::Reader(std::string const filePathValue, int detailTypeValue)
                         ++indexnum;
                     }
 
-                    Node node(id, detailTypeValue, x, z);
+                    Node node(id, source_id, x, z);
 
-                    contactInit.push_back(std::make_pair(std::numeric_limits<int>::max(), Edge()));
+                    contactInit.push_back(std::make_pair(
+                        std::numeric_limits<int>::max(), cavity2d::Edge()));
 
                     nodes.push_back(node);
                     break;
@@ -89,7 +88,8 @@ Reader::Reader(std::string const filePathValue, int detailTypeValue)
                         if (indexnum == 4)
                         {
                             n2 = std::stoi(str);
-                            contactInit[id] = std::make_pair(toolNumber, Edge({ n1, n2 }));
+                            contactInit[id] =
+                                std::make_pair(toolNumber, cavity2d::Edge({ n1, n2 }));
                         }
 
                         ++indexnum;

@@ -4,7 +4,7 @@
 
 void add(Reader& rw, std::vector<Tool>& tools)
 {
-    for (auto node : rw.nodes)
+    for (auto& node : rw.nodes)
         tools.back().addNode(node);
 
     for (auto id : rw.contour)
@@ -20,7 +20,7 @@ void add(Reader& rw, std::vector<Tool>& tools)
 
 void add(Reader& rw, std::vector<Workpiece>& workpieces)
 {
-    for (auto const& node : rw.nodes)
+    for (auto& node : rw.nodes)
         workpieces.back().addNode(node);
 
     for (auto id : rw.contour)
@@ -34,12 +34,14 @@ void add(Reader& rw, std::vector<Workpiece>& workpieces)
 }
 
 
-CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int toolNumber, int wpNumber) : CM_CavityModel2D()
+CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int toolNumber, int wpNumber)
+    : CM_CavityModel2D()
 {
     if (toolNumber > 1)
         for (int i = 1; i <= toolNumber; ++i)
         {
-            Reader rw("../" + folder + "-t" + std::to_string(i) + ".csv2d", i);
+            Reader rw("../" + folder + "-t" +
+                std::to_string(i) + ".csv2d", i);
             tools.emplace_back(rw.nodes.size(), i);
 
             add(rw, tools);
@@ -56,7 +58,8 @@ CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int too
     if (wpNumber > 1)
         for (int i = 1; i <= wpNumber; ++i)
         {
-            Reader rw("../" + folder + "-wp" + std::to_string(i) + ".csv2d", i);
+            Reader rw("../" + folder + "-wp" +
+                std::to_string(i) + ".csv2d", i);
             workpieces.emplace_back(rw.nodes.size(), i);
 
             add(rw, workpieces);

@@ -16,7 +16,7 @@ int main()
     
     int time = 1;
 
-    std::string folder = "data_example/data(0)";
+    std::string folder = "data_example/data(6)";
 
     if (std::filesystem::exists("../return_" + folder))
     {
@@ -25,7 +25,7 @@ int main()
 
     std::filesystem::create_directory("../return_" + folder);
 
-    std::vector<CM_Cavity2D> lastSpaceAreas;
+    std::vector<CM_Cavity2D> lastCavity;
 
     int toolNumber = 2;
     int wpNumber = 1;
@@ -39,7 +39,8 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if (event.type == sf::Event::MouseWheelScrolled && event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
+            if (event.type == sf::Event::MouseWheelScrolled &&
+                event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
             {
 
                 if (event.mouseWheelScroll.delta > 0)
@@ -78,18 +79,20 @@ int main()
 
         ss << std::setw(3) << std::setfill('0') << time;
 
-        CM_CavityModel2D_FromFile cmObject(folder + "/" + ss.str(), toolNumber, wpNumber);
+        CM_CavityModel2D_FromFile cmObject(folder + "/" +
+            ss.str(), toolNumber, wpNumber);
          
-        cmObject.inizialisation(toolNumber, wpNumber);
+        cmObject.initialisation(toolNumber, wpNumber);
 
-        cmObject.findSpace();
+        cmObject.findCavity();
         
-        cmObject.trackSpaceArea(lastSpaceAreas);
-        lastSpaceAreas = cmObject.cavitys;
-
+        cmObject.trackCavity(lastCavity);
+        
         Writer().write(folder + "/" + ss.str(), cmObject);
 
         Drawer().drawAll(window, cmObject);
+
+        lastCavity = std::move(cmObject.getCavities());
 
         sf::sleep(sf::milliseconds(300*1));
 

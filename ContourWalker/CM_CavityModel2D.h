@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Geometry.h"
+#include "Bodies.h"
 
 using namespace cavity2d;
 
@@ -14,24 +14,25 @@ protected:
     std::vector<Tool> tools;
     std::vector<Workpiece> workpieces;
 
-    std::vector<CM_Cavity2D> intersectionSpace(Workpiece& oneDetail, Tool& otherDetail);
+    std::vector<CM_Cavity2D> cavities;
 
+    std::vector<CM_Cavity2D> intersectionCavity(Workpiece& workpiece, Tool& tool);
+    
 public:
-
-    std::vector<CM_Cavity2D> cavitys;
-
-
-    std::vector<Tool>& gettools();
+    std::vector<Tool>& getTools();
 
 
-    std::vector<Workpiece>& getworkpieces();
+    std::vector<Workpiece>& getWorkpieces();
 
 
-    void findSpace();
+    std::vector<CM_Cavity2D>& getCavities();
 
 
-    void trackSpaceArea(std::vector<CM_Cavity2D>& lastSpaceAreas);
+    void findCavity();
 
 
-    void inizialisation(int toolNumber, int wpNumber);
+    void trackCavity(std::vector<CM_Cavity2D>& lastCavity);
+
+
+    void initialisation(int toolNumber, int wpNumber);
 };

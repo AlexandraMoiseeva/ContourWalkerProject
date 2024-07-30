@@ -1,5 +1,5 @@
 #pragma once
-#include "Geometry.h"
+#include "Bodies.h"
 #include "CM_CavityModel2D_FromFile.h" 
 
 #include <SFML/Graphics.hpp>
@@ -17,7 +17,7 @@ private:
     void drawContour(sf::RenderWindow& window, Tool& cwt);
 
 
-    void drawSpace(sf::RenderWindow& window, CM_CavityModel2D& cm) const;
+    void drawCavity(sf::RenderWindow& window, CM_CavityModel2D& cm);
 
  public:
 

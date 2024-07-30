@@ -134,10 +134,10 @@
     <ClCompile Include="CM_CavityModel2D.cpp" />
     <ClCompile Include="CM_CavityModel2D_FromFile.cpp" />
     <ClCompile Include="Drawer.cpp" />
-    <ClCompile Include="Geometry.cpp" />
-    <ClCompile Include="GeometryInit.cpp" />
+    <ClCompile Include="Bodies.cpp" />
+    <ClCompile Include="BodiesSupport.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="GeometryInit.h" />
+    <ClCompile Include="BodiesSupport.h" />
     <ClCompile Include="Reader.cpp" />
     <ClCompile Include="Writer.cpp" />
   </ItemGroup>
@@ -145,7 +145,7 @@
     <ClInclude Include="CM_CavityModel2D.h" />
     <ClInclude Include="CM_CavityModel2D_FromFile.h" />
     <ClInclude Include="Drawer.h" />
-    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Bodies.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="Writer.h" />
   </ItemGroup>
