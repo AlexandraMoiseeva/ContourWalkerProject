@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "CM_CavityModel2D.h"
 
 

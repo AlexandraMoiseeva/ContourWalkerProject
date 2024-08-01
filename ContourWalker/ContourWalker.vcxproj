@@ -148,6 +148,7 @@
     <ClInclude Include="Bodies.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="some_tests.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="Writer.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
-﻿#include "Bodies.h"
+﻿#include "stdafx.h"
+#include "Bodies.h"
 
 #include <stdexcept>
 #include <set>
