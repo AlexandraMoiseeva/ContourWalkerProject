@@ -110,8 +110,7 @@ std::vector<CM_Cavity2D> CM_CavityModel2D::intersectionCavity
                     {
                         auto it1 = workpiece.getContactEdge(*it).second_point - 1;
 
-                        while (it1 - &*tool.getContour().begin() !=
-                            tool.getContour().size())
+                        while (it1 != &*(tool.getContour().end() - 1))
                         {
                             ++it1;
                             contourTool.push_back(*it1);

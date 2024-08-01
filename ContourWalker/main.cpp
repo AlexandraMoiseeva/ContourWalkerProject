@@ -12,6 +12,7 @@ int main()
 {
     tests::SomeTests();
 
+    /*
     sf::RenderWindow window(sf::VideoMode(1440, 810), "SFML works!");
     sf::View view(sf::FloatRect(0, 0, 960 * 1.5, 540 * 1.5));
 
@@ -104,5 +105,7 @@ int main()
         if (time++ == 90)
             time = 1;
     }
+    */
+
     return 0;
 }

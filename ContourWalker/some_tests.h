@@ -20,6 +20,12 @@ public:
 		}
 	}
 
+	void SerializeCavities(std::ostream& out) const {
+		out << cavities.size() << '\n';
+		for (const auto& body : cavities) {
+			WriteBody(body, out);
+		}
+	}
 	void DeSerialize(std::istream& in) {
 		size_t tools_count;
 		in >> tools_count;
@@ -34,7 +40,6 @@ public:
 			ReadBody(in, true);
 		}
 	}
-
 private:
 	void ReadBody(std::istream& in, bool wp) {
 		int id; size_t nodes_count;
@@ -117,6 +122,30 @@ private:
 				<< ' ' << contact.first_point
 				<< ' ' << contact.second_point
 				<< '\n';
+		}
+	}
+
+	void WriteBody(const Body& body, std::ostream& out) const {
+		// copy nodes
+		out << body.id << '\n';
+		out << body.nodes.size() << '\n';
+		for (auto& node : body.nodes) {
+			out << node.sourceObjInfo.source_body_id
+				<< ' ' << node.sourceObjInfo.mesh_obj_id
+				<< ' ' << node.isSym
+				<< ' ' << node.coordinate.x
+				<< ' ' << node.coordinate.z
+				<< '\n';
+		}
+		// contour (order of nodes)
+		out << body.contour.nodes.size() << '\n';
+		bool first = true;
+		for (Node* node : body.contour.nodes) {
+			if (!first) {
+				out << ' ';
+			}
+			out << node->sourceObjInfo.mesh_obj_id;
+			first = false;
 		}
 	}
 };
@@ -433,6 +462,9 @@ inline void SomeTests() {
 	cm_model.DeSerialize(is);
 	cm_model.initialisation(2, 1); // crash
 	cm_model.findCavity();
+	std::ostringstream os;
+	cm_model.SerializeCavities(os);
+	std::cout << os.str() << std::endl;
 }
 
 }
