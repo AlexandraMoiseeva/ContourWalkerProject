@@ -51,7 +51,7 @@ private:
 		// contour (order of nodes)
 		size_t contour_nodes_count;
 		in >> contour_nodes_count;
-		body.contour.nodes.resize(contour_nodes_count);
+		body.contour.nodes.reserve(contour_nodes_count);
 		while (contour_nodes_count--) {
 			int node_id;
 			in >> node_id;
@@ -67,11 +67,12 @@ private:
 		// contacts
 		size_t contacts_count;
 		in >> contacts_count;
-		body.contactInit.resize(contacts_count);
+		body.contactInit.resize(nodes_count);
+
 		for (auto& contact : body.contactInit) {
-			in >> contact.first
-				>> contact.second.n1
-				>> contact.second.n2;
+			in >> contact.source_body_id
+				>> contact.first_point
+				>> contact.second_point;
 		}
 	}
 
@@ -110,9 +111,9 @@ private:
 		// contacts
 		out << '\n' << body.contactInit.size() << '\n';
 		for (const auto& contact : body.contactInit) {
-			out << contact.first
-				<< ' ' << contact.second.n1
-				<< ' ' << contact.second.n2
+			out << contact.source_body_id
+				<< ' ' << contact.first_point
+				<< ' ' << contact.second_point
 				<< '\n';
 		}
 	}

@@ -43,8 +43,7 @@ Reader::Reader(std::string const filePath, int source_id) : source_id(source_id)
 
                     Node node(id, source_id, x, z);
 
-                    contactInit.push_back(std::make_pair(
-                        std::numeric_limits<int>::max(), cavity2d::Edge()));
+                    contactInit.push_back(cavity2d::Edge());
 
                     nodes.push_back(node);
                     break;
@@ -88,8 +87,8 @@ Reader::Reader(std::string const filePath, int source_id) : source_id(source_id)
                         if (indexnum == 4)
                         {
                             n2 = std::stoi(str);
-                            contactInit[id] =
-                                std::make_pair(toolNumber, cavity2d::Edge({ n1, n2 }));
+                            contactInit[id] = 
+                                cavity2d::Edge({ toolNumber, n1, n2 });
                         }
 
                         ++indexnum;

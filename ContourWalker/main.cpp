@@ -104,6 +104,5 @@ int main()
         if (time++ == 90)
             time = 1;
     }
-
     return 0;
 }

@@ -2,41 +2,31 @@
 #include "Reader.h"
 
 
-void add(Reader& rw, std::vector<Tool>& tools)
+void add(Reader& rw, Tool& tool)
 {
     for (auto& node : rw.nodes)
-        tools.back().addNode(node);
+        tool.addNode(node);
 
     for (auto id : rw.contour)
-        tools.back().addContour(id);
+        tool.addContour(id);
 
     for (auto point : rw.symAxisPoints)
-        tools.back().addSymAxisPoint(point);
+        tool.addSymAxisPoint(point);
 
-    for (auto contactInit : rw.contactInit)
-        tools.back().addContact(contactInit);
-}
-
-
-void add(Reader& rw, std::vector<Workpiece>& workpieces)
-{
-    for (auto& node : rw.nodes)
-        workpieces.back().addNode(node);
-
-    for (auto id : rw.contour)
-        workpieces.back().addContour(id);
-
-    for (auto point : rw.symAxisPoints)
-        workpieces.back().addSymAxisPoint(point);
-
-    for (auto const& contactInit : rw.contactInit)
-        workpieces.back().addContact(contactInit);
+    for (auto nodeId = 0; nodeId < rw.contactInit.size(); ++nodeId)
+        if (rw.contactInit[nodeId].source_body_id == -1)
+            continue;
+        else
+            tool.addContact(nodeId, rw.contactInit[nodeId]);
 }
 
 
 CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int toolNumber, int wpNumber)
     : CM_CavityModel2D()
 {
+    tools.reserve(toolNumber);
+    workpieces.reserve(wpNumber);
+
     if (toolNumber > 1)
         for (int i = 1; i <= toolNumber; ++i)
         {
@@ -44,14 +34,14 @@ CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int too
                 std::to_string(i) + ".csv2d", i);
             tools.emplace_back(rw.nodes.size(), i);
 
-            add(rw, tools);
+            add(rw, tools.back());
         }
     else
     {
         Reader rw("../" + folder + "-t" + ".csv2d", 0);
         tools.emplace_back(rw.nodes.size(), 0);
 
-        add(rw, tools);
+        add(rw, tools.back());
     }
 
 
@@ -62,13 +52,13 @@ CM_CavityModel2D_FromFile::CM_CavityModel2D_FromFile(std::string folder, int too
                 std::to_string(i) + ".csv2d", i);
             workpieces.emplace_back(rw.nodes.size(), i);
 
-            add(rw, workpieces);
+            add(rw, workpieces.back());
         }
     else
     {
         Reader rw("../" + folder + "-wp" + ".csv2d", 0);
         workpieces.emplace_back(rw.nodes.size(), 0);
 
-        add(rw, workpieces);
+        add(rw, workpieces.back());
     }
 };

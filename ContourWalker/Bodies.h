@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <vector>
+#include <map>
 #include <string>
 
 #include "BodiesSupport.h"
@@ -15,8 +16,10 @@ namespace cavity2d
 
     struct Edge
     {
-        int n1 = 0;
-        int n2 = 0;
+        int source_body_id = -1;
+
+        int first_point = -1;
+        int second_point = -1;
     };
 
 
@@ -92,7 +95,7 @@ namespace cavity2d
 
         std::vector<int> symAxisPoints;
 
-        std::vector<std::pair<int, Edge>> contactInit;
+        std::vector<Edge> contactInit;
 
         std::vector<EdgeNode> contact;
 
@@ -106,7 +109,7 @@ namespace cavity2d
         void addSymAxisPoint(int point);
 
 
-        void addContact(std::pair<int, Edge> contact_init);
+        void addContact(int nodeId, Edge contact_init);
 
 
         void initialisation();
@@ -145,7 +148,7 @@ namespace cavity2d
         Workpiece(int nodeAmount, int id);
 
 
-        void contactInitialisation(std::vector<Tool>& details);
+        void contactInitialisation(std::vector<Tool>& details, std::map<int, int>& placeInVectorByIdTool);
 
 
         EdgeNode getContactEdge(Node* node);

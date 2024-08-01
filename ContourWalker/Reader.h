@@ -35,7 +35,7 @@ public:
 
     std::vector<int> symAxisPoints = {};
 
-    std::vector<std::pair<int, cavity2d::Edge>> contactInit = {};
+    std::vector<cavity2d::Edge> contactInit = {};
     
 
     Reader() = default;

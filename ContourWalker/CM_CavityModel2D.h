@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <map>
+
 #include "Bodies.h"
 
 using namespace cavity2d;
@@ -18,7 +20,17 @@ protected:
 
     std::vector<CM_Cavity2D> intersectionCavity(Workpiece& workpiece, Tool& tool);
     
+    std::map<int, int> placeInVectorByIdTool;
+
+    std::map<int, int> placeInVectorByIdWorkpiece;
+
 public:
+    Tool& getToolById(int i);
+
+
+    Workpiece& getWorkpieceById(int i);
+
+
     std::vector<Tool>& getTools();
 
 

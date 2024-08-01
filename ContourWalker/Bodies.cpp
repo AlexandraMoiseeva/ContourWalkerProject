@@ -73,15 +73,28 @@ void cavity2d::Body::addContour(int idNode)
 };
 
 
+cavity2d::Tool::Tool(int nodeAmount, int id)
+    : Tool(nodeAmount, detailType::tool, id) {};
+
+
+cavity2d::Tool::Tool(int nodeAmount, detailType type, int id)
+    : Body(nodeAmount, type, id)
+{
+    contactInit.resize(nodeAmount);
+    std::fill(contactInit.begin(), contactInit.end(), Edge());
+    contact.reserve(nodeAmount);
+};
+
+
 void cavity2d::Tool::addSymAxisPoint(int point)
 {
     symAxisPoints.push_back(point);
 };
 
 
-void cavity2d::Tool::addContact(std::pair<int, Edge> contactPoint)
+void cavity2d::Tool::addContact(int nodeId, Edge contactPoint)
 {
-    contactInit.push_back(contactPoint);
+    contactInit[nodeId] = contactPoint;
 };
 
 
@@ -116,16 +129,7 @@ void cavity2d::Tool::symAxisInitialisation(std::vector<int>& symAxisPoints)
 };
 
 
-cavity2d::Tool::Tool(int nodeAmount, int id)
-    : Tool(nodeAmount, detailType::tool, id) {};
 
-
-cavity2d::Tool::Tool(int nodeAmount, detailType type, int id)
-    : Body(nodeAmount, type, id)
-{
-    contactInit.reserve(nodeAmount);
-    contact.reserve(nodeAmount);
-};
 
 
 cavity2d::CM_Cavity2D::CM_Cavity2D(Contour& contourWP, Contour& contourTool) :
@@ -198,28 +202,28 @@ cavity2d::Workpiece::Workpiece(int nodeAmount, int id)
     : Tool(nodeAmount, detailType::workpiece, id) {};
 
 
-void cavity2d::Workpiece::contactInitialisation(std::vector<Tool>& tools)
+void cavity2d::Workpiece::contactInitialisation(std::vector<Tool>& tools, std::map<int, int>& placeInVectorByIdTool)
 {
     for (auto const& elem : contactInit)
     {
-        if (elem.first == std::numeric_limits<int>::max())
+        if (elem.source_body_id == -1)
             contact.push_back(EdgeNode());
         else
         {
-            auto tool = &tools[elem.first + (elem.first == 0 ? 0 : -1)];
+            auto tool = &tools[placeInVectorByIdTool[elem.source_body_id]];
 
             auto it1 = std::find_if(tool->getContour().begin(),
                 tool->getContour().end(),
                 [=, *this](Node* node)
                 {
-                    return *node == tool->getNode(elem.second.n1);
+                    return *node == tool->getNode(elem.first_point);
                 });
 
             auto it2 = std::find_if(tool->getContour().begin(),
                 tool->getContour().end(),
                 [=, *this](Node* node)
                 {
-                    return *node == tool->getNode(elem.second.n2);
+                    return *node == tool->getNode(elem.second_point);
                 });
 
             contact.push_back(EdgeNode(&*it1, &*it2));

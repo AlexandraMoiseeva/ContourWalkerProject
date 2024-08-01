@@ -1,6 +1,18 @@
 #include "CM_CavityModel2D.h"
 
 
+Tool& CM_CavityModel2D::getToolById(int i)
+{
+    return tools[ placeInVectorByIdTool[i] ];
+};
+
+
+Workpiece& CM_CavityModel2D::getWorkpieceById(int i)
+{
+    return workpieces[ placeInVectorByIdWorkpiece[i] ];
+};
+
+
 std::vector<Tool>& CM_CavityModel2D::getTools()
 {
     return tools;
@@ -217,17 +229,22 @@ void CM_CavityModel2D::trackCavity(std::vector<CM_Cavity2D>& lastCavity)
 
 void CM_CavityModel2D::initialisation(int toolNumber, int wpNumber)
 {
-    tools.reserve(toolNumber);
-    workpieces.reserve(wpNumber);
-
-    for (auto& wp : workpieces)
+    for (int i = 0; i < tools.size(); ++i)
     {
-        wp.contactInitialisation(tools);
-        wp.initialisation();
-    }
+        auto& tool = tools[i];
 
-    for (auto& tool : tools)
-    {
         tool.initialisation();
+
+        placeInVectorByIdTool[tool.id] = i;
+    }
+    
+    for (int i = 0; i < workpieces.size(); ++i)
+    {
+        auto& wp = workpieces[i];
+
+        wp.contactInitialisation(tools, placeInVectorByIdTool);
+        wp.initialisation();
+        
+        placeInVectorByIdWorkpiece[wp.id] = i;
     }
 };
