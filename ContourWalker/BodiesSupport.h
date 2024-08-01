@@ -57,7 +57,7 @@ public:
 
 class Contour
 {
-private:
+public:
     std::vector<Node*> nodes = {};
 
 public:

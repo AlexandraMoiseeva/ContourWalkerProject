@@ -57,7 +57,7 @@ namespace cavity2d
 
     class Body
     {
-    protected:
+    public:
         std::vector<Node> nodes;
         Contour contour;
 
@@ -87,7 +87,7 @@ namespace cavity2d
 
     class Tool : public Body
     {
-    protected:
+    public:
         Tool(int nodeAmount, detailType type, int id);
 
         std::vector<int> symAxisPoints;

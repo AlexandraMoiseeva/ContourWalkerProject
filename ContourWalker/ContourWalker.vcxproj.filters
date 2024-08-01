@@ -68,6 +68,9 @@
     <ClInclude Include="CM_CavityModel2D_FromFile.h">
       <Filter>Файлы заголовков\DrawerReader</Filter>
     </ClInclude>
+    <ClInclude Include="some_tests.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

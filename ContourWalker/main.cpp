@@ -6,9 +6,12 @@
 #include "CM_CavityModel2D.h" 
 #include "Drawer.h"
 #include "Writer.h"
+#include "some_tests.h"
 
 int main()
 {
+    //tests::SomeTests();
+
     sf::RenderWindow window(sf::VideoMode(1440, 810), "SFML works!");
     sf::View view(sf::FloatRect(0, 0, 960 * 1.5, 540 * 1.5));
 
