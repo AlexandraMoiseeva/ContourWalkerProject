@@ -92,8 +92,10 @@ std::vector<CM_Cavity2D> CM_CavityModel2D::intersectionCavity
                 {
                     if (!isSym)
                     {
-                        auto it2 = *workpiece.getContactEdge(*contourWP.begin()).second_point;
                         auto it3 = workpiece.getContactEdge(*it).first_point;
+                        auto it2 = *(workpiece.getContactEdge(*contourWP.begin()).first_point == it3 
+                            ? workpiece.getContactEdge(*contourWP.begin()).second_point 
+                            : workpiece.getContactEdge(*contourWP.begin()).first_point);
 
                         for (int it1 = 1; it1 != tool.getContour().size(); ++it1)
                         {
@@ -103,7 +105,10 @@ std::vector<CM_Cavity2D> CM_CavityModel2D::intersectionCavity
                                 : *(tool.getContour().begin() 
                                     + (*it3 - *(tool.getContour().end() - it1))));
                             if (*(contourTool.end() - 1) == it2)
+                            {
+                                cavities.emplace_back(contourWP, contourTool);
                                 break;
+                            }
                         }
                     }
                     else
@@ -114,12 +119,16 @@ std::vector<CM_Cavity2D> CM_CavityModel2D::intersectionCavity
                         {
                             ++it1;
                             contourTool.push_back(*it1);
+
                             if ((*it1)->isSym)
+                            {
+                                cavities.emplace_back(contourWP, contourTool);
                                 break;
+                            }
                         }
                     }
 
-                    cavities.emplace_back(contourWP, contourTool);
+                    
                 }
                 else
                 {

@@ -76,11 +76,6 @@ void Drawer::drawCavity(sf::RenderWindow& window, CM_CavityModel2D& cm)
         text.setPosition(textPoint.first + 50, textPoint.second + 50);
         text.setString(std::to_string(elem.cavitySquare));
         window.draw(text);
-
-        text.setPosition(textPoint.first + 50, textPoint.second);
-        text.setString(std::to_string(elem.getContour().front()->sourceObjInfo.source_body_id) + "."
-            + std::to_string(elem.id));
-        window.draw(text);
     }
 };
 

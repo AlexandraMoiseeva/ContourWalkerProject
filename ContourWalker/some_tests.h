@@ -20,12 +20,6 @@ public:
 		}
 	}
 
-	void SerializeCavities(std::ostream& out) const {
-		out << cavities.size() << '\n';
-		for (const auto& body : cavities) {
-			WriteBody(body, out);
-		}
-	}
 	void DeSerialize(std::istream& in) {
 		size_t tools_count;
 		in >> tools_count;
