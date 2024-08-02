@@ -139,6 +139,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BodiesSupport.h" />
     <ClCompile Include="Reader.cpp" />
+    <ClCompile Include="some_tests.cpp" />
     <ClCompile Include="Writer.cpp" />
   </ItemGroup>
   <ItemGroup>

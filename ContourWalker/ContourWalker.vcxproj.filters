@@ -48,6 +48,9 @@
     <ClCompile Include="CM_CavityModel2D.cpp">
       <Filter>Файлы ресурсов</Filter>
     </ClCompile>
+    <ClCompile Include="some_tests.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CM_CavityModel2D.h">
